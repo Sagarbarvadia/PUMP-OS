@@ -1,0 +1,137 @@
+{
+  "identity": {
+    "name": "Precision Protocol",
+    "archetype": "Swiss Industrial",
+    "core_principles": [
+      "Clarity over Decoration: Data density must be high but legible.",
+      "Safety First: Use color (Orange/Red) only for status and action, never for decoration.",
+      "Tactile Feedback: Interactive elements must feel distinct and robust.",
+      "Mobile Utility: The factory floor experience is primary, not secondary."
+    ]
+  },
+  "typography": {
+    "fonts": {
+      "heading": {
+        "family": "Chivo, sans-serif",
+        "url": "https://fonts.googleapis.com/css2?family=Chivo:wght@300;400;600;900&display=swap",
+        "usage": "Use for all page titles, card headers, and metric labels. Weights: 600 for headers, 900 for big numbers."
+      },
+      "body": {
+        "family": "Inter, sans-serif",
+        "url": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap",
+        "usage": "Use for general text, labels, and form inputs."
+      },
+      "mono": {
+        "family": "JetBrains Mono, monospace",
+        "url": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap",
+        "usage": "MANDATORY for all tabular data, prices, SKUs, and stock counts."
+      }
+    },
+    "rules": [
+      "Headings (h1-h3) must use 'tracking-tight'.",
+      "Overlines/Labels must be uppercase, 'text-xs', 'font-semibold', and 'tracking-wider'.",
+      "Tabular numbers must use 'font-mono' to ensure alignment."
+    ]
+  },
+  "colors": {
+    "palette": {
+      "primary": {
+        "name": "Safety Orange",
+        "hex": "#EA580C",
+        "tailwind": "orange-600",
+        "usage": "Primary Actions (Save, Create), Active States, Critical Alerts."
+      },
+      "secondary": {
+        "name": "Industrial Blue",
+        "hex": "#2563EB",
+        "tailwind": "blue-600",
+        "usage": "Information, Links, Secondary Buttons."
+      },
+      "background": {
+        "light": "#F8FAFC",
+        "dark": "#0F172A",
+        "usage": "Page background is Slate-50. Sidebar is Slate-900."
+      },
+      "surface": {
+        "light": "#FFFFFF",
+        "border": "#E2E8F0",
+        "usage": "Cards are white with Slate-200 borders."
+      },
+      "status": {
+        "success": "#059669",
+        "warning": "#D97706",
+        "error": "#DC2626"
+      }
+    },
+    "theme_config": {
+      "mode": "light",
+      "strategy": "High Contrast Light Mode for content, Dark Mode for Navigation."
+    }
+  },
+  "layout": {
+    "structure": "Sidebar Navigation (Fixed) + Top Bar (Sticky) + Main Content (Scrollable)",
+    "grid_system": {
+      "dashboard": "grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6",
+      "detail_view": "grid-cols-1 lg:grid-cols-3 gap-8 (2 cols for form, 1 col for meta/status)",
+      "mobile": "Single column stack. Tables convert to Card Lists on mobile."
+    },
+    "spacing": {
+      "container": "p-4 md:p-8 max-w-7xl mx-auto",
+      "card": "p-6",
+      "section_gap": "gap-8"
+    }
+  },
+  "components": {
+    "overrides": {
+      "radius": "0.3rem",
+      "shadows": "shadow-sm",
+      "borders": "border border-slate-200"
+    },
+    "specifics": {
+      "Card": "Must be white, 'rounded-md', 'border', 'shadow-sm'. Header must be distinct.",
+      "Button": "Height 'h-10' or 'h-11' for touch targets. 'font-medium'. No rounded-full.",
+      "Input": "Background 'bg-slate-50'. Border 'border-slate-300'. Focus ring 'ring-orange-600'.",
+      "Table": "Header 'bg-slate-100' 'uppercase' 'text-xs' 'font-bold'. Rows 'even:bg-slate-50'. Cell padding 'p-4'.",
+      "Badge": "Use 'rounded-sm' (not full). Solid colors for status."
+    }
+  },
+  "visual_enhancers": {
+    "textures": "Subtle noise on the Sidebar background to reduce banding.",
+    "gradients": "None. Use solid colors for precision.",
+    "icons": "Lucide React (already installed). Use 'stroke-width={1.5}' for technical look."
+  },
+  "assets": {
+    "images": [
+      {
+        "category": "hero_login",
+        "url": "https://images.unsplash.com/photo-1764185800646-f75f7e16e465?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzN8MHwxfHNlYXJjaHwzfHxpbmR1c3RyaWFsJTIwZmFjdG9yeSUyMGZsb29yJTIwbWFudWZhY3R1cmluZ3xlbnwwfHx8fDE3NzE1NzE4Nzl8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Industrial factory floor with machinery, suitable for Login Page background."
+      },
+      {
+        "category": "placeholder_machine",
+        "url": "https://images.unsplash.com/photo-1764114908655-9a26d32750a0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzN8MHwxfHNlYXJjaHwyfHxpbmR1c3RyaWFsJTIwZmFjdG9yeSUyMGZsb29yJTIwbWFudWZhY3R1cmluZ3xlbnwwfHx8fDE3NzE1NzE4Nzl8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Worker operating machinery, suitable for empty states or production module."
+      }
+    ],
+    "logo_text": "PUMP.OS"
+  },
+  "instructions_to_main_agent": [
+    "1. SETUP: Update 'tailwind.config.js' to use the 'Chivo' and 'JetBrains Mono' fonts.",
+    "2. THEME: Override CSS variables in 'index.css' to match the 'Slate' + 'Safety Orange' palette.",
+    "3. COMPONENTS: When using Shadcn, strictly enforce the 'rounded-md' and 'border-slate-200' style. Do not use default rounded-xl.",
+    "4. MOBILE: Ensure all clickable elements are at least 44px height. Tables must scroll horizontally or switch to card view on mobile.",
+    "5. DATA: All prices and stock numbers must use 'font-mono'.",
+    "6. NOTIFICATIONS: Use 'sonner' for toast notifications.",
+    "7. CHARTS: Use 'recharts' with the custom color palette (Orange for production, Blue for stock).",
+    "8. LOGIN: Use the provided factory floor image as a side-panel or background with overlay."
+  ],
+  "UNIVERSAL_GUIDELINES": {
+    "general": [
+      "Avoid 'AI Slop' (generic centered layouts, excessive gradients).",
+      "Use 'data-testid' on all interactive elements.",
+      "Do not use emojis for icons. Use Lucide icons.",
+      "Ensure text contrast meets WCAG AA standards (4.5:1).",
+      "Use 2-3x more padding than standard for breathing room, even in dense dashboards."
+    ]
+  }
+}

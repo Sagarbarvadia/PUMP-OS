@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Chivo:wght@300;400;600;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 24 95% 46%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 24 95% 46%;
+    --radius: 0.3rem;
+    --chart-1: 24 95% 46%;
+    --chart-2: 217 91% 60%;
+    --chart-3: 142 71% 45%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 0 72% 51%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-slate-50 text-slate-900;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Chivo', sans-serif;
+    @apply tracking-tight;
+  }
+  .font-mono, .tabular-nums {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer components {
+  .stat-card {
+    @apply bg-white border border-slate-200 rounded-md shadow-sm p-5;
+  }
+  .data-table th {
+    @apply bg-slate-100 text-xs font-bold uppercase tracking-wider text-slate-600 px-4 py-3 text-left;
+  }
+  .data-table td {
+    @apply px-4 py-3 text-sm text-slate-700 border-b border-slate-100;
+  }
+  .data-table tr:last-child td {
+    @apply border-b-0;
+  }
+  .data-table tr:hover td {
+    @apply bg-slate-50;
+  }
+  .sidebar-link {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-700 transition-colors;
+  }
+  .sidebar-link.active {
+    @apply bg-orange-600 text-white;
+  }
+  .sidebar-group-label {
+    @apply text-xs font-bold uppercase tracking-widest text-slate-500 px-3 mb-1 mt-4;
+  }
+  .page-title {
+    font-family: 'Chivo', sans-serif;
+    @apply text-2xl font-bold text-slate-900 tracking-tight;
+  }
+  .label-overline {
+    @apply text-xs font-semibold uppercase tracking-wider text-slate-500;
+  }
+  .badge-success { @apply inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-emerald-100 text-emerald-800; }
+  .badge-warning { @apply inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-amber-100 text-amber-800; }
+  .badge-error   { @apply inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-red-100 text-red-800; }
+  .badge-info    { @apply inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-blue-100 text-blue-800; }
+  .badge-neutral { @apply inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-slate-100 text-slate-700; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { @apply bg-slate-300 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-slate-400; }
+
+/* Mobile table wrapper */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
