@@ -29,7 +29,6 @@ INSTALLED_APPS = [
     'apps.production',
     'apps.dashboard',
     'apps.reports',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
