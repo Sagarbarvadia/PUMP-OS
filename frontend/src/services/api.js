@@ -115,7 +115,8 @@ export const productionAPI = {
 };
 
 // Dashboard
-export const dashboardAPI = {
+export const dashboardAPI = {  baseURL: "pump-os-two.vercel.app"
+
   get: () => api.get('/dashboard/'),
 };
 
