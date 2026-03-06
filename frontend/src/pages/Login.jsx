@@ -13,25 +13,23 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      await login(username, password);
-      navigate('/dashboard');
-    } catch (err) {
-  const msg =
-    err.response?.data?.error ||
-    err.response?.data?.detail ||
-    "Invalid credentials";
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+      setError('');
+      setLoading(true);
 
-  setError(msg);
-}
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        await login(username, password);
+        navigate('/dashboard');
+      } catch (err) {
+        const msg = err.response?.data?.detail || 'Invalid credentials';
+        setError(msg);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+  
 
   return (
     <div className="min-h-screen flex">
