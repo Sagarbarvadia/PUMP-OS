@@ -21,7 +21,13 @@ export default function Login() {
       await login(username, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Invalid credentials');
+  const msg =
+    err.response?.data?.error ||
+    err.response?.data?.detail ||
+    "Invalid credentials";
+
+  setError(msg);
+}
     } finally {
       setLoading(false);
     }
