@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const BASE = process.env.REACT_APP_BACKEND_URL + '/api';
+const BASE =
+  (process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000") + "/api";
 
 const api = axios.create({ baseURL: BASE });
 
@@ -114,7 +115,6 @@ export const productionAPI = {
   today: () => api.get('/production/today/'),
 };
 
-// Dashboard
 // Dashboard
 export const dashboardAPI = {
   get: () => api.get('/dashboard/'),
