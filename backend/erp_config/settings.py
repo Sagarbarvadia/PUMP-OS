@@ -10,7 +10,9 @@ STATICFILES_DIRS = [BASE_DIR / 'frontend' / 'build' / 'static']
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-erp-manufacturing-key-change-in-production-2024')
 DEBUG = True
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    "pump-os-backend.onrender.com"
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
