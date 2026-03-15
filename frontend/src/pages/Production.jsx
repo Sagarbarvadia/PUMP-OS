@@ -110,27 +110,18 @@ export default function Production() {
 
   };
  const handleDelete = async (id) => {
-
   if (!window.confirm("Delete this order?")) return;
 
   try {
-
     await productionAPI.deleteOrder(id);
-
     toast.success("Order deleted");
-
-    fetchAll(); // refresh table
-
+    fetchAll();
   } catch (error) {
-
-    console.error("Delete error:", error.response?.data || error.message);
-
+    console.error(error.response?.data || error);
     toast.error("Delete failed");
-
   }
+};
 
-};
-};
 
   const statsProduced = orders.filter(o => o.status === 'COMPLETED').reduce((s, o) => s + Number(o.qty_produced), 0);
   const statsRejected = orders.filter(o => o.status === 'COMPLETED').reduce((s, o) => s + Number(o.qty_rejected), 0);
