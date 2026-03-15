@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { masterAPI, inventoryAPI } from '@/services/api';
 import { Plus, X, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
+import { ArrowUpDown } from "lucide-react";
 
 const TABS = ['Raw Material Stock', 'Finished Goods', 'Adjustments', 'Stock Ledger'];
 
@@ -143,31 +144,53 @@ export default function Inventory() {
                 <div className="table-scroll">
                   <table className="data-table w-full" data-testid="rm-stock-table">
                     <thead>
-                      <tr>
-                        <th onClick={() => handleSort("item_id")} className="cursor-pointer">
-                          Item ID
-                        </th>
-                        <th onClick={() => handleSort("item_name")} className="cursor-pointer">
-                          Item Name
-                        </th>
-                        <th onClick={() => handleSort("category")} className="cursor-pointer">
-                          Cat
-                        </th>
-                        <th onClick={() => handleSort("unit")} className="cursor-pointer">
-                          Unit
-                        </th>
-                        <th onClick={() => handleSort("current_stock")} className="cursor-pointer text-right">
-                          Stock
-                        </th>
-                        <th onClick={() => handleSort("moving_avg_cost")} className="cursor-pointer text-right">
-                          Avg Cost
-                        </th>
-                        <th onClick={() => handleSort("value")} className="cursor-pointer text-right">
-                          Value
-                        </th>
-                        <th>Status</th>
-                        <th></th>
-                      </tr>
+                     <tr>
+                      <th onClick={() => handleSort("item_id")} className="cursor-pointer text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          Item ID <ArrowUpDown size={14} />
+                        </div>
+                      </th>
+
+                      <th onClick={() => handleSort("item_name")} className="cursor-pointer text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          Item Name <ArrowUpDown size={14} />
+                        </div>
+                      </th>
+
+                      <th onClick={() => handleSort("category")} className="cursor-pointer text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          Cat <ArrowUpDown size={14} />
+                        </div>
+                      </th>
+
+                      <th className="text-center">Unit</th>
+
+                      <th onClick={() => handleSort("current_stock")} className="cursor-pointer text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          Stock <ArrowUpDown size={14} />
+                        </div>
+                      </th>
+
+                      <th onClick={() => handleSort("moving_avg_cost")} className="cursor-pointer text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          Avg Cost <ArrowUpDown size={14} />
+                        </div>
+                      </th>
+
+                      <th onClick={() => handleSort("value")} className="cursor-pointer text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          Value <ArrowUpDown size={14} />
+                        </div>
+                      </th>
+
+                      <th onClick={() => handleSort("status")} className="cursor-pointer text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          Status <ArrowUpDown size={14} />
+                        </div>
+                      </th>
+
+                      <th></th>
+                    </tr>
                     </thead>
                     <tbody>
                       {filteredStock.map(i => (
