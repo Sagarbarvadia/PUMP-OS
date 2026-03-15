@@ -21,6 +21,9 @@ function Modal({ title, onClose, children }) {
 }
 
 export default function Inventory() {
+  const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState(null);
+  const [sortDir, setSortDir] = useState("asc");
   const [tab, setTab] = useState(0);
   const [stock, setStock] = useState([]);
   const [fg, setFg] = useState([]);
@@ -62,8 +65,47 @@ export default function Inventory() {
       setSaving(false);
     }
   };
+  const handleSort = (key) => {
+
+    let dir = "asc";
+
+    if (sortKey === key && sortDir === "asc") {
+      dir = "desc";
+    }
+
+    setSortKey(key);
+    setSortDir(dir);
+
+  };
 
   const totalRMValue = stock.reduce((s, i) => s + (Number(i.current_stock) * Number(i.moving_avg_cost || 0)), 0);
+  const filteredStock = stock
+  .filter(i =>
+    i.item_id.toLowerCase().includes(search.toLowerCase()) ||
+    i.item_name.toLowerCase().includes(search.toLowerCase()) ||
+    i.category.toLowerCase().includes(search.toLowerCase())
+  )
+  .sort((a, b) => {
+
+    if (!sortKey) return 0;
+
+    let valA = a[sortKey];
+    let valB = b[sortKey];
+
+    if (sortKey === "value") {
+      valA = Number(a.current_stock) * Number(a.moving_avg_cost);
+      valB = Number(b.current_stock) * Number(b.moving_avg_cost);
+    }
+
+    if (typeof valA === "string") {
+      return sortDir === "asc"
+        ? valA.localeCompare(valB)
+        : valB.localeCompare(valA);
+    }
+
+    return sortDir === "asc" ? valA - valB : valB - valA;
+
+  });
 
   return (
     <div className="space-y-4 animate-fade-in" data-testid="inventory-page">
@@ -87,21 +129,48 @@ export default function Inventory() {
         <>
           {tab === 0 && (
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <p className="text-sm text-slate-500 ">Total Stock Value: <strong className="font-mono text-orange-600">₹{totalRMValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</strong></p>
+                <input
+                  type="text"
+                  placeholder="Search item..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="h-9 px-3 border border-slate-300 rounded-md text-sm w-72"
+                />
               </div>
               <div className="bg-white border border-slate-200 rounded-md shadow-sm">
                 <div className="table-scroll">
                   <table className="data-table w-full" data-testid="rm-stock-table">
                     <thead>
                       <tr>
-                        <th>Item ID</th><th>Item Name</th><th>Cat</th><th>Unit</th>
-                        <th className="text-left w-20">Stock</th><th className="text-right w-20">Avg Cost</th>
-                        <th className="text-left w-20">Value</th><th>Status</th><th></th>
+                        <th onClick={() => handleSort("item_id")} className="cursor-pointer">
+                          Item ID
+                        </th>
+                        <th onClick={() => handleSort("item_name")} className="cursor-pointer">
+                          Item Name
+                        </th>
+                        <th onClick={() => handleSort("category")} className="cursor-pointer">
+                          Cat
+                        </th>
+                        <th onClick={() => handleSort("unit")} className="cursor-pointer">
+                          Unit
+                        </th>
+                        <th onClick={() => handleSort("current_stock")} className="cursor-pointer text-right">
+                          Stock
+                        </th>
+                        <th onClick={() => handleSort("moving_avg_cost")} className="cursor-pointer text-right">
+                          Avg Cost
+                        </th>
+                        <th onClick={() => handleSort("value")} className="cursor-pointer text-right">
+                          Value
+                        </th>
+                        <th>Status</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
-                      {stock.map(i => (
+                      {filteredStock.map(i => (
                         <tr key={i.id}>
                           <td className="font-mono text-xs text-slate-500">{i.item_id}</td>
                           <td className="font-medium">{i.item_name}</td>

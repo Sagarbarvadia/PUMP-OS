@@ -7,10 +7,7 @@ import { ArrowUpDown } from "lucide-react";
 const CATEGORIES = ['ELECTRICAL', 'MECHANICAL', 'HARDWARE', 'PACKAGING', 'CONSUMABLE', 'OTHER'];
 const UNITS = ['PCS', 'KG', 'MTR', 'LTR', 'SET', 'ROLL', 'BOX', 'GM', 'MM'];
 const EMPTY = { item_id: '', item_name: '', category: 'ELECTRICAL', unit: 'PCS', reorder_level: '', default_cost: '', lead_time: '', status: true };
-const [sortConfig, setSortConfig] = useState({
-  key: null,
-  direction: "asc",
-});
+
 
 function Modal({ title, onClose, children }) {
   return (
@@ -103,23 +100,11 @@ function BulkImportModal({ onClose, onSuccess }) {
       setStage('upload');
     }
   };
-    const handleSort = (key) => {
-  let direction = "asc";
-
-  if (sortConfig.key === key && sortConfig.direction === "asc") {
-    direction = "desc";
-  }
+    
 
   setSortConfig({ key, direction });
 
-  const sorted = [...items].sort((a, b) => {
-    if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-    if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
-    return 0;
-  });
-
-  setItems(sorted);
-};
+  
 
   const handleFilePick = e => processFile(e.target.files?.[0]);
   const handleDrop = e => { e.preventDefault(); setDragOver(false); processFile(e.dataTransfer.files?.[0]); };
@@ -265,6 +250,10 @@ export default function RawMaterials() {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const importFileRef = useRef();
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "asc",
+  });
 
   const fetchItems = () => {
     masterAPI.rawMaterials().then(r => { setItems(r.data); setLoading(false); });
@@ -309,6 +298,32 @@ export default function RawMaterials() {
     }
   };
 
+  const handleSort = (key) => {
+
+    let direction = "asc";
+
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+
+    const sorted = [...items].sort((a, b) => {
+
+      if (typeof a[key] === "string") {
+        return direction === "asc"
+          ? a[key].localeCompare(b[key])
+          : b[key].localeCompare(a[key]);
+      }
+
+      return direction === "asc"
+        ? a[key] - b[key]
+        : b[key] - a[key];
+
+    });
+
+    setItems(sorted);
+    setSortConfig({ key, direction });
+
+  };
   const filtered = items.filter(i =>
     i.item_name.toLowerCase().includes(search.toLowerCase()) ||
     i.item_id.toLowerCase().includes(search.toLowerCase())
@@ -376,27 +391,21 @@ export default function RawMaterials() {
             <table className="data-table w-full" data-testid="rm-table">
               <thead>
                 <tr>
-                  <th
-                    onClick={() => handleSort("item_id")}
-                    className="cursor-pointer"
-                  >
+                <th onClick={() => handleSort("item_id")} className="cursor-pointer">
+                  <div className="flex items-center gap-1">
                     ITEM ID <ArrowUpDown size={14} />
-                  </th>
-                  <th
-                    onClick={() => handleSort("current_stock")}
-                    className="cursor-pointer"
-                  >
-                    STOCK <ArrowUpDown size={14} />
-                  </th>
-                  <th
-                    onClick={() => handleSort("avg_cost")}
-                    className="cursor-pointer"
-                  >
-                    AVG COST <ArrowUpDown size={14} />
-                  </th>
-                  <th className="text-right">Reorder</th><th>Status</th><th className="text-right">Actions</th>
+                  </div>
+                </th>
+                <th>ITEM NAME</th>
+                <th>CATEGORY</th>
+                <th>UNIT</th>
+                <th onClick={() => handleSort("current_stock")}>STOCK</th>
+                <th onClick={() => handleSort("moving_avg_cost")}>AVG COST</th>
+                <th>REORDER</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
                 </tr>
-              </thead>
+                </thead>
               <tbody>
                 {filtered.length === 0 ? (
                   <tr><td colSpan={9} className="text-center py-10 text-slate-400">No items found</td></tr>
