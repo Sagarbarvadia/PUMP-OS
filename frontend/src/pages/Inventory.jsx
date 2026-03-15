@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { masterAPI, inventoryAPI } from '@/services/api';
-import { Plus, X, BookOpen } from 'lucide-react';
+import { Plus, X, BookOpen, Search, ArrowUpDown } from 'lucide-react';
 import { toast } from 'sonner';
-import { ArrowUpDown } from "lucide-react";
 
 const TABS = ['Raw Material Stock', 'Finished Goods', 'Adjustments', 'Stock Ledger'];
 
