@@ -129,8 +129,8 @@ export default function Production() {
   return (
     <div className="space-y-4 animate-fade-in" data-testid="production-page">
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="stat-card text-center py-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div className="stat-card flex flex-col items-center justify-center h-20">
           <p className="label-overline">Total Orders</p>
           <p className="font-heading font-black text-2xl font-mono">{orders.length}</p>
         </div>
@@ -158,19 +158,26 @@ export default function Production() {
         </button>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-md shadow-sm">
+      <div className="bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16"><div className="w-8 h-8 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" /></div>
         ) : (
-          <div className="table-scroll">
+          <div className="overflow-x-auto">
             <table className="data-table w-full" data-testid="production-table">
               <thead>
-                <tr>
-                  <th>Order No</th><th>Date</th><th>Model</th><th>Batch</th>
-                  <th className="text-right">Planned</th><th className="text-right">Produced</th>
-                  <th className="text-right">Rejected</th><th className="text-right">Net</th>
-                  <th className="text-right">Batch Cost</th><th>Status</th><th></th>
-                </tr>
+              <tr>
+              <th className="w-[140px]">Order No</th>
+              <th className="w-[120px]">Date</th>
+              <th>Model</th>
+              <th className="w-[120px]">Batch</th>
+              <th className="text-right w-[90px]">Planned</th>
+              <th className="text-right w-[90px]">Produced</th>
+              <th className="text-right w-[90px]">Rejected</th>
+              <th className="text-right w-[90px]">Net</th>
+              <th className="text-right w-[120px]">Batch Cost</th>
+              <th className="w-[120px]">Status</th>
+              <th className="w-[90px] text-right">Actions</th>
+              </tr>
               </thead>
               <tbody>
                   {orders.length === 0 ? (
@@ -180,7 +187,7 @@ export default function Production() {
                   </td>
                   </tr>
                   ) : orders.map(o => (
-                  <tr key={o.id}>
+                 <tr key={o.id} className="h-11">
                   <td className="font-mono text-xs font-semibold text-orange-600">{o.order_no}</td>
                   <td className="font-mono text-xs">{o.date}</td>
                   <td className="font-medium">{o.model_name}</td>
@@ -201,7 +208,8 @@ export default function Production() {
                   </button>
                   </td>
 
-                  <td className="flex gap-2">
+                  <td className="text-right">
+                  <div className="flex justify-end gap-2">
 
                   <button
                                         onClick={() => handleEdit(o)}
@@ -217,7 +225,9 @@ export default function Production() {
                                         <Trash2 size={14} />
                                         
                                       </button>
+                  </div>
                   </td>
+                  
 
                   </tr>
                   ))}
