@@ -132,13 +132,15 @@ export default function Inventory() {
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-4">
                 <p className="text-sm text-slate-500 ">Total Stock Value: <strong className="font-mono text-orange-600">₹{totalRMValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</strong></p>
-                <input
-                  type="text"
-                  placeholder="Search item..."
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+  
+                  <input
+                    type="text"
+                    placeholder="Search item..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="w-full h-9 pl-9 pr-3 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
               </div>
               <div className="bg-white border border-slate-200 rounded-md shadow-sm">
                 <div className="table-scroll">
