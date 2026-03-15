@@ -137,7 +137,7 @@ export default function Inventory() {
                   placeholder="Search item..."
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="h-9 px-3 border border-slate-300 rounded-md text-sm w-72"
+                  className="h-9 px-3 border border-slate-300 rounded-md text-sm w-150"
                 />
               </div>
               <div className="bg-white border border-slate-200 rounded-md shadow-sm">
