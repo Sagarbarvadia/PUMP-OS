@@ -112,6 +112,7 @@ export const productionAPI = {
   orders: params => api.get('/production/orders/', { params }),
   getOrder: id => api.get(`/production/orders/${id}/`),
   createOrder: data => api.post('/production/orders/', data),
+  deleteOrder: id => api.delete(`/production/orders/${id}/`),
   today: () => api.get('/production/today/'),
 };
 

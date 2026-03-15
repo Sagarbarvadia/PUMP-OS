@@ -109,24 +109,27 @@ export default function Production() {
     setModalOpen(true);
 
   };
-  const handleDelete = async (id) => {
+ const handleDelete = async (id) => {
 
   if (!window.confirm("Delete this order?")) return;
 
   try {
 
     await productionAPI.deleteOrder(id);
+
     toast.success("Order deleted");
-    fetchAll();
-      
+
+    fetchAll(); // refresh table
 
   } catch (error) {
 
-    console.error(error);
+    console.error("Delete error:", error.response?.data || error.message);
+
     toast.error("Delete failed");
 
   }
 
+};
 };
 
   const statsProduced = orders.filter(o => o.status === 'COMPLETED').reduce((s, o) => s + Number(o.qty_produced), 0);
