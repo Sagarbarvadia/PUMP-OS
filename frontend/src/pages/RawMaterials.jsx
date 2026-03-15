@@ -2,10 +2,15 @@ import React, { useEffect, useState, useRef } from 'react';
 import { masterAPI, inventoryAPI } from '@/services/api';
 import { Plus, Pencil, Trash2, X, Search, AlertCircle, Upload, FileDown, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
 import { toast } from 'sonner';
+import { ArrowUpDown } from "lucide-react";
 
 const CATEGORIES = ['ELECTRICAL', 'MECHANICAL', 'HARDWARE', 'PACKAGING', 'CONSUMABLE', 'OTHER'];
 const UNITS = ['PCS', 'KG', 'MTR', 'LTR', 'SET', 'ROLL', 'BOX', 'GM', 'MM'];
 const EMPTY = { item_id: '', item_name: '', category: 'ELECTRICAL', unit: 'PCS', reorder_level: '', default_cost: '', lead_time: '', status: true };
+const [sortConfig, setSortConfig] = useState({
+  key: null,
+  direction: "asc",
+});
 
 function Modal({ title, onClose, children }) {
   return (
@@ -98,6 +103,23 @@ function BulkImportModal({ onClose, onSuccess }) {
       setStage('upload');
     }
   };
+    const handleSort = (key) => {
+  let direction = "asc";
+
+  if (sortConfig.key === key && sortConfig.direction === "asc") {
+    direction = "desc";
+  }
+
+  setSortConfig({ key, direction });
+
+  const sorted = [...items].sort((a, b) => {
+    if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+    if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  setItems(sorted);
+};
 
   const handleFilePick = e => processFile(e.target.files?.[0]);
   const handleDrop = e => { e.preventDefault(); setDragOver(false); processFile(e.dataTransfer.files?.[0]); };
@@ -354,8 +376,24 @@ export default function RawMaterials() {
             <table className="data-table w-full" data-testid="rm-table">
               <thead>
                 <tr>
-                  <th>Item ID</th><th>Item Name</th><th>Category</th><th>Unit</th>
-                  <th className="text-right">Stock</th><th className="text-right">Avg Cost</th>
+                  <th
+                    onClick={() => handleSort("item_id")}
+                    className="cursor-pointer"
+                  >
+                    ITEM ID <ArrowUpDown size={14} />
+                  </th>
+                  <th
+                    onClick={() => handleSort("current_stock")}
+                    className="cursor-pointer"
+                  >
+                    STOCK <ArrowUpDown size={14} />
+                  </th>
+                  <th
+                    onClick={() => handleSort("avg_cost")}
+                    className="cursor-pointer"
+                  >
+                    AVG COST <ArrowUpDown size={14} />
+                  </th>
                   <th className="text-right">Reorder</th><th>Status</th><th className="text-right">Actions</th>
                 </tr>
               </thead>
