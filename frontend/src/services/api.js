@@ -85,19 +85,19 @@ export const inventoryAPI = {
   deletePurchase: id => api.delete(`/inventory/purchases/${id}/`),
 
   importOpeningStock: file => {
-  const form = new FormData();
-  form.append('file', file);
+    const form = new FormData();
+    form.append('file', file);
 
-  return api.post(
-    "/inventory/opening-stock-import/",
-    form,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  );
-},
+    return api.post(
+      "/inventory/opening-stock-import/",
+      form,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+  },
 
   sampleDownload: () =>
     api.get('/inventory/opening-stock-sample/', {
@@ -108,11 +108,18 @@ export const inventoryAPI = {
 };
 
 // Production
+// Production
 export const productionAPI = {
   orders: params => api.get('/production/orders/', { params }),
   getOrder: id => api.get(`/production/orders/${id}/`),
   createOrder: data => api.post('/production/orders/', data),
-  deleteOrder: id => api.delete(`/production/orders/${id}/`),
+
+  updateOrder: (id, data) =>
+    api.put(`/production/orders/${id}/`, data),
+
+  deleteOrder: id =>
+    api.delete(`/production/orders/${id}/`),
+
   today: () => api.get('/production/today/'),
 };
 
