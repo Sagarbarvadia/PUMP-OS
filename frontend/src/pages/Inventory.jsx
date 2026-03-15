@@ -201,9 +201,9 @@ export default function Inventory() {
                           <td className="font-medium">{i.item_name}</td>
                           <td className="text-xs">{i.category}</td>
                           <td className="font-mono text-xs">{i.unit}</td>
-                          <td className={`text-right font-mono font-semibold ${i.is_below_reorder ? 'text-red-600' : ''}`}>{Number(i.current_stock).toFixed(4)}</td>
-                          <td className="text-right font-mono text-xs">₹{Number(i.moving_avg_cost).toFixed(4)}</td>
-                          <td className="text-right font-mono text-xs">₹{(Number(i.current_stock) * Number(i.moving_avg_cost)).toFixed(2)}</td>
+                          <td className={`text-left font-mono font-semibold ${i.is_below_reorder ? 'text-red-600' : ''}`}>{Number(i.current_stock).toFixed(4)}</td>
+                          <td className="text-left font-mono text-xs">₹{Number(i.moving_avg_cost).toFixed(4)}</td>
+                          <td className="text-left font-mono text-xs">₹{(Number(i.current_stock) * Number(i.moving_avg_cost)).toFixed(2)}</td>
                           <td><span className={i.is_below_reorder ? 'badge-error' : 'badge-success'}>{i.is_below_reorder ? 'Low' : 'OK'}</span></td>
                           <td>
                             <button onClick={() => openLedger(i)} className="text-slate-400 hover:text-blue-600" title="View Ledger">
