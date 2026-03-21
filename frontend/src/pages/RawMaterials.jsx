@@ -6,7 +6,7 @@ import { ArrowUpDown } from "lucide-react";
 
 const CATEGORIES = ['ELECTRICAL', 'MECHANICAL', 'HARDWARE', 'PACKAGING', 'CONSUMABLE', 'OTHER'];
 const UNITS = ['PCS', 'KG', 'MTR', 'LTR', 'SET', 'ROLL', 'BOX', 'GM', 'MM'];
-const EMPTY = { item_id: '', item_name: '', category: 'ELECTRICAL', unit: 'PCS', reorder_level: '', default_cost: '', lead_time: '', status: true };
+const EMPTY = { item_id: '', item_name: '', category: 'ELECTRICAL', unit: 'PCS', reorder_level: 0, default_cost: 0, lead_time: 0, status: true };
 
 
 function Modal({ title, onClose, children }) {
@@ -475,6 +475,17 @@ export default function RawMaterials() {
                 type="number"
                 value={form.current_stock}
                 onChange={e => setForm({ ...form, current_stock: e.target.value })}
+                className="w-full h-11 px-3 bg-slate-50 border border-slate-300 rounded-md"
+              />
+            </div>
+
+            <div>
+              <label className="label-overline block mb-1.5">Default Cost</label>
+              <input
+                type="number"
+                step="0.0001"
+                value={form.default_cost}
+                onChange={e => setForm({ ...form, default_cost: e.target.value })}
                 className="w-full h-11 px-3 bg-slate-50 border border-slate-300 rounded-md"
               />
             </div>
