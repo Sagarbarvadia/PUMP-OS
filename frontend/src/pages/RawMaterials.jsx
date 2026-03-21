@@ -395,7 +395,7 @@ export default function RawMaterials() {
                 <th>CATEGORY</th>
                 <th>UNIT</th>
                 <th onClick={() => handleSort("current_stock")}>STOCK</th>
-                <th onClick={() => handleSort("moving_avg_cost")}>AVG COST</th>
+                <th onClick={() => handleSort("default_cost")}>DEFAULT COST</th>
                 <th>REORDER</th>
                 <th>STATUS</th>
                 <th>ACTIONS</th>
