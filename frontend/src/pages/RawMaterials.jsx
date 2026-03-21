@@ -100,11 +100,6 @@ function BulkImportModal({ onClose, onSuccess }) {
       setStage('upload');
     }
   };
-    
-
-  setSortConfig({ key, direction });
-
-  
 
   const handleFilePick = e => processFile(e.target.files?.[0]);
   const handleDrop = e => { e.preventDefault(); setDragOver(false); processFile(e.dataTransfer.files?.[0]); };
