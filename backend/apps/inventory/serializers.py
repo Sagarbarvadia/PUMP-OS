@@ -13,7 +13,7 @@ class PurchaseEntrySerializer(serializers.ModelSerializer):
         fields = [
             'id', 'purchase_date', 'supplier_name', 'raw_material',
             'item_name', 'item_unit', 'quantity', 'purchase_rate',
-            'total_amount', 'notes', 'created_by_name', 'created_at'
+            'gst_percent', 'total_amount', 'notes', 'created_by_name', 'created_at'
         ]
         read_only_fields = ['id', 'created_at', 'total_amount']
 

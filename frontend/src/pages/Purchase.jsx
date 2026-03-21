@@ -20,7 +20,7 @@ function Modal({ title, onClose, children }) {
 }
 
 const today = new Date().toISOString().slice(0, 10);
-const EMPTY = { purchase_date: today, supplier_name: '', raw_material: '', quantity: '', purchase_rate: '', notes: '' };
+const EMPTY = { purchase_date: today, supplier_name: '', raw_material: '', quantity: '', purchase_rate: '', gst_percent: 18, notes: '' };
 
 export default function Purchase() {
   
@@ -49,7 +49,10 @@ export default function Purchase() {
   const totalAmount = () => {
     const q = parseFloat(form.quantity) || 0;
     const r = parseFloat(form.purchase_rate) || 0;
-    return (q * r).toFixed(4);
+    const gst = parseFloat(form.gst_percent) || 0;
+    const subtotal = q * r;
+    const gstAmount = subtotal * (gst / 100);
+    return (subtotal + gstAmount).toFixed(4);
   };
   const handleDelete = async (id) => {
 
@@ -74,6 +77,7 @@ export default function Purchase() {
       raw_material: purchase.raw_material,
       quantity: purchase.quantity,
       purchase_rate: purchase.purchase_rate,
+      gst_percent: purchase.gst_percent || 18,
       notes: purchase.notes || ''
     });
 
@@ -151,6 +155,7 @@ export default function Purchase() {
                 <tr>
                   <th>Date</th><th>Supplier</th><th>Item</th><th>Unit</th>
                   <th className="text-right w-20">Qty</th><th className="text-right w-20">Rate</th>
+                  <th className="text-right w-16">GST</th>
                   <th className="text-right w-20 ">Amount</th>
                   <th>By</th>
                   <th>Actions</th>
@@ -158,7 +163,7 @@ export default function Purchase() {
               </thead>
               <tbody>
                 {purchases.length === 0 ? (
-                  <tr><td colSpan={8} className="text-center py-10 text-slate-400">No purchases recorded yet</td></tr>
+                  <tr><td colSpan={9} className="text-center py-10 text-slate-400">No purchases recorded yet</td></tr>
                 ) : purchases.map(p => (
                   <tr key={p.id}>
                     <td className="font-mono text-xs">{p.purchase_date}</td>
@@ -167,6 +172,7 @@ export default function Purchase() {
                     <td className="text-xs font-mono">{p.item_unit}</td>
                     <td className="text-right font-mono">{Number(p.quantity).toFixed(4)}</td>
                     <td className="text-right font-mono">₹{Number(p.purchase_rate).toFixed(4)}</td>
+                    <td className="text-right font-mono">{p.gst_percent}%</td>
                     <td className="text-right font-mono font-semibold text-slate-900">₹{Number(p.total_amount).toFixed(2)}</td>
                     <td className="text-xs text-slate-400">{p.created_by_name}</td>
                     <td className="flex gap-2">
@@ -222,6 +228,14 @@ export default function Purchase() {
                 <label className="label-overline block mb-1">Purchase Rate (₹) *</label>
                 <input type="number" step="0.0001" min="0.0001" required className="w-full h-9 px-3 border border-slate-300 rounded-md text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono" value={form.purchase_rate} onChange={e => setForm({ ...form, purchase_rate: e.target.value })} data-testid="pur-rate" />
               </div>
+            </div>
+            <div>
+              <label className="label-overline block mb-1">GST (%)</label>
+              <select className="w-full h-9 px-3 border border-slate-300 rounded-md text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500" value={form.gst_percent} onChange={e => setForm({ ...form, gst_percent: parseInt(e.target.value) })} data-testid="pur-gst">
+                <option value={0}>0%</option>
+                <option value={5}>5%</option>
+                <option value={18}>18%</option>
+              </select>
             </div>
             <div className="bg-orange-50 border border-orange-200 rounded-md px-4 py-3 flex items-center justify-between">
               <span className="label-overline">Total Amount</span>

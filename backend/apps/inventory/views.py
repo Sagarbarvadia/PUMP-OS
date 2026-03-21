@@ -47,11 +47,18 @@ class PurchaseListView(APIView):
         with transaction.atomic():
             qty = Decimal(str(request.data['quantity']))
             rate = Decimal(str(request.data['purchase_rate']))
-            total = qty * rate
+            gst_percent = Decimal(str(request.data.get('gst_percent', 18)))
+            
+            # Calculate total before GST
+            subtotal = qty * rate
+            # Calculate GST amount
+            gst_amount = subtotal * (gst_percent / 100)
+            # Total amount including GST
+            total = subtotal + gst_amount
 
             material = RawMaterial.objects.select_for_update().get(pk=request.data['raw_material'])
 
-            # Calculate moving average cost
+            # Calculate moving average cost (use rate before GST for inventory valuation)
             current_value = material.current_stock * material.moving_avg_cost
             new_value = qty * rate
             new_total_qty = material.current_stock + qty
@@ -67,6 +74,7 @@ class PurchaseListView(APIView):
                 raw_material=material,
                 quantity=qty,
                 purchase_rate=rate,
+                gst_percent=gst_percent,
                 total_amount=total,
                 notes=request.data.get('notes', ''),
                 created_by=request.user

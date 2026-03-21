@@ -3,6 +3,12 @@ from django.db import models
 
 
 class PurchaseEntry(models.Model):
+    GST_CHOICES = [
+        (0, '0%'),
+        (5, '5%'),
+        (18, '18%'),
+    ]
+    
     purchase_date = models.DateField()
     supplier_name = models.CharField(max_length=200)
     raw_material = models.ForeignKey(
@@ -10,6 +16,7 @@ class PurchaseEntry(models.Model):
     )
     quantity = models.DecimalField(max_digits=15, decimal_places=4)
     purchase_rate = models.DecimalField(max_digits=15, decimal_places=4)
+    gst_percent = models.IntegerField(choices=GST_CHOICES, default=18)
     total_amount = models.DecimalField(max_digits=20, decimal_places=4)
     notes = models.TextField(blank=True)
     created_by = models.ForeignKey(
