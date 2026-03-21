@@ -131,6 +131,24 @@ export default function BOM() {
   }
 };
 
+  const downloadExport = async () => {
+    if (!bom) return;
+    try {
+      const res = await bomAPI.export(bom.id);
+
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `BOM_${bom.product_model.model_id}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+    } catch (err) {
+      toast.error("Export failed");
+    }
+  };
+
   return (
     <div className="space-y-4 animate-fade-in" data-testid="bom-page">
       {/* Model selector + Actions */}
@@ -155,9 +173,9 @@ export default function BOM() {
                 <Upload size={14} /> Import
               </button>
               {bom && (
-                <a href={`${bomAPI.exportUrl(bom.id)}`} download className="flex items-center gap-1.5 h-9 px-3 border border-slate-300 rounded-md text-sm hover:bg-slate-50" data-testid="bom-export-btn">
+                <button onClick={downloadExport} className="flex items-center gap-1.5 h-9 px-3 border border-slate-300 rounded-md text-sm hover:bg-slate-50" data-testid="bom-export-btn">
                   <Download size={14} /> Export
-                </a>
+                </button>
               )}
               <button
                   onClick={downloadSample}

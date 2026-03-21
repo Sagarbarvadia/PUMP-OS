@@ -57,7 +57,10 @@ export const bomAPI = {
     });
   },
 
-  exportUrl: id => `${BASE}/bom/${id}/export/`,
+  export: id =>
+    api.get(`/bom/${id}/export/`, {
+      responseType: 'blob'
+    }),
 
   sampleDownload: () =>
     api.get('/bom/sample/', {
