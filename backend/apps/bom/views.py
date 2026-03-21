@@ -185,6 +185,9 @@ class BOMExportView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
+        if request.user.role not in ['ADMIN', 'PRODUCTION_MANAGER', 'STORE_MANAGER']:
+            return Response({'error': 'EXPORT NOT AUTHORISED'}, status=403)
+        
         try:
             bom = BOM.objects.prefetch_related('items__raw_material').get(pk=pk)
         except BOM.DoesNotExist:
@@ -222,6 +225,9 @@ class BOMSampleDownloadView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        if request.user.role not in ['ADMIN', 'PRODUCTION_MANAGER', 'STORE_MANAGER']:
+            return Response({'error': 'EXPORT NOT AUTHORISED'}, status=403)
+        
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "BOM Template"
