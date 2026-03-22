@@ -52,6 +52,9 @@ export default function Production() {
   };
   useEffect(() => { fetchAll(); }, []);
 
+  const statsProduced = orders.reduce((sum, o) => sum + Number(o.qty_produced || 0), 0);
+  const statsRejected = orders.reduce((sum, o) => sum + Number(o.qty_rejected || 0), 0);
+
   const openDetail = async id => {
     const r = await productionAPI.getOrder(id);
     setDetailOrder(r.data);
