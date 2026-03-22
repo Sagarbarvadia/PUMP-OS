@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from django.db.models import Sum, Q, Count
+from django.db.models import Sum, Q, Count, F
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -71,13 +71,13 @@ class MonthlyProductionReportView(APIView):
         else:
             m_end = dt(year, month + 1, 1) - timedelta(days=1)
 
-        orders = ProductionOrder.objects.filter(date__gte=m_start, date__lte=m_end)
+        orders = ProductionOrder.objects.filter(date__gte=m_start, date__lte=m_end).select_related('product_model')
         if model_id:
             orders = orders.filter(product_model_id=model_id)
 
-        model_summary = orders.values(
-            'product_model__model_id', 'product_model__model_name'
-        ).annotate(
+        model_summary = orders.values('product_model').annotate(
+            model_id=F('product_model__model_id'),
+            model_name=F('product_model__model_name'),
             total_produced=Sum('qty_produced'),
             total_rejected=Sum('qty_rejected'),
             total_cost=Sum('batch_cost'),
