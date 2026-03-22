@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { masterAPI, productionAPI } from '@/services/api';
-import { Plus, Pencil, Trash2, X, Search, AlertCircle, Upload, FileDown, CheckCircle2, AlertTriangle,ChevronRight, Info } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Search, AlertCircle, Upload, FileDown, CheckCircle2, AlertTriangle,ChevronRight, Info, ChevronUp, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 
@@ -36,6 +36,9 @@ export default function Production() {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortField, setSortField] = useState('date');
+  const [sortDirection, setSortDirection] = useState('desc');
   
 
   const fetchAll = () => {
@@ -123,8 +126,40 @@ export default function Production() {
 };
 
 
-  const statsProduced = orders.filter(o => o.status === 'COMPLETED').reduce((s, o) => s + Number(o.qty_produced), 0);
-  const statsRejected = orders.filter(o => o.status === 'COMPLETED').reduce((s, o) => s + Number(o.qty_rejected), 0);
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const filteredAndSortedOrders = orders
+    .filter(order =>
+      order.order_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.date.includes(searchTerm) ||
+      order.model_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.batch_no.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      let aVal, bVal;
+      if (sortField === 'order_no') {
+        aVal = a.order_no;
+        bVal = b.order_no;
+      } else if (sortField === 'date') {
+        aVal = new Date(a.date);
+        bVal = new Date(b.date);
+      } else if (sortField === 'model') {
+        aVal = a.model_name.toLowerCase();
+        bVal = b.model_name.toLowerCase();
+      }
+      if (sortDirection === 'asc') {
+        return aVal > bVal ? 1 : -1;
+      } else {
+        return aVal < bVal ? 1 : -1;
+      }
+    });
 
   return (
     <div className="space-y-4 animate-fade-in" data-testid="production-page">
@@ -158,6 +193,21 @@ export default function Production() {
         </button>
       </div>
 
+      <div className="flex items-center gap-4 mb-4">
+        <div className="flex-1 max-w-md">
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search orders..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full h-9 pl-10 pr-3 border border-slate-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16"><div className="w-8 h-8 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" /></div>
@@ -166,9 +216,30 @@ export default function Production() {
             <table className="data-table w-full" data-testid="production-table">
               <thead>
               <tr>
-              <th className="w-[140px]">Order No</th>
-              <th className="w-[120px]">Date</th>
-              <th>Model</th>
+              <th className="w-[140px] cursor-pointer select-none" onClick={() => handleSort('order_no')}>
+                <div className="flex items-center gap-1">
+                  Order No
+                  {sortField === 'order_no' && (
+                    sortDirection === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+                  )}
+                </div>
+              </th>
+              <th className="w-[120px] cursor-pointer select-none" onClick={() => handleSort('date')}>
+                <div className="flex items-center gap-1">
+                  Date
+                  {sortField === 'date' && (
+                    sortDirection === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+                  )}
+                </div>
+              </th>
+              <th className="cursor-pointer select-none" onClick={() => handleSort('model')}>
+                <div className="flex items-center gap-1">
+                  Model
+                  {sortField === 'model' && (
+                    sortDirection === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+                  )}
+                </div>
+              </th>
               <th className="w-[120px]">Batch</th>
               <th className="text-right w-[90px]">Planned</th>
               <th className="text-right w-[90px]">Produced</th>
@@ -180,13 +251,13 @@ export default function Production() {
               </tr>
               </thead>
               <tbody>
-                  {orders.length === 0 ? (
+                  {filteredAndSortedOrders.length === 0 ? (
                   <tr>
                   <td colSpan={11} className="text-center py-10 text-slate-400">
-                  No production orders yet
+                  {orders.length === 0 ? 'No production orders yet' : 'No orders match your search'}
                   </td>
                   </tr>
-                  ) : orders.map(o => (
+                  ) : filteredAndSortedOrders.map(o => (
                  <tr key={o.id} className="h-11">
                   <td className="font-mono text-xs font-semibold text-orange-600">{o.order_no}</td>
                   <td className="font-mono text-xs">{o.date}</td>

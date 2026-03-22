@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Count
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -81,26 +81,19 @@ class MonthlyProductionReportView(APIView):
             total_produced=Sum('qty_produced'),
             total_rejected=Sum('qty_rejected'),
             total_cost=Sum('batch_cost'),
-            order_count=Sum('id') * 0 + Sum('qty_planned') * 0 + Sum('qty_planned') * 0
-        ).annotate(
-            order_count=Sum('qty_produced') * 0 + Sum('id') * 0
+            order_count=Count('id')
         )
 
         result = []
-        for item in orders.values('product_model__model_id', 'product_model__model_name').distinct():
-            model_orders = orders.filter(product_model__model_id=item['product_model__model_id'])
-            produced = model_orders.aggregate(t=Sum('qty_produced'))['t'] or 0
-            rejected = model_orders.aggregate(t=Sum('qty_rejected'))['t'] or 0
-            cost = model_orders.aggregate(t=Sum('batch_cost'))['t'] or 0
-            count = model_orders.count()
+        for item in model_summary:
             result.append({
                 'model_id': item['product_model__model_id'],
                 'model_name': item['product_model__model_name'],
-                'total_produced': float(produced),
-                'total_rejected': float(rejected),
-                'net_production': float(produced) - float(rejected),
-                'total_cost': float(cost),
-                'order_count': count
+                'total_produced': float(item['total_produced'] or 0),
+                'total_rejected': float(item['total_rejected'] or 0),
+                'net_production': float((item['total_produced'] or 0) - (item['total_rejected'] or 0)),
+                'total_cost': float(item['total_cost'] or 0),
+                'order_count': item['order_count']
             })
         return Response({'month': f"{year}-{month:02d}", 'data': result})
 
