@@ -9,6 +9,7 @@ export default function BOM() {
   const [materials, setMaterials] = useState([]);
   const [selectedModel, setSelectedModel] = useState('');
   const [bom, setBom] = useState(null);
+  const [gstPercent, setGstPercent] = useState(18);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [items, setItems] = useState([]);
@@ -20,7 +21,7 @@ export default function BOM() {
   }, []);
 
   const loadBOM = async modelId => {
-    if (!modelId) { setBom(null); setItems([]); return; }
+    if (!modelId) { setBom(null); setItems([]); setGstPercent(18); return; }
     setLoading(true);
     try {
       const r = await bomAPI.list({ product_model: modelId });
@@ -28,6 +29,7 @@ export default function BOM() {
       if (activeBom) {
         const detail = await bomAPI.get(activeBom.id);
         setBom(detail.data);
+        setGstPercent(detail.data.gst_percent);
         setItems(detail.data.items.map(i => ({
           id: i.id,
           raw_material: i.raw_material,
@@ -39,6 +41,7 @@ export default function BOM() {
       } else {
         setBom(null);
         setItems([]);
+        setGstPercent(18);
       }
     } finally {
       setLoading(false);
@@ -70,6 +73,7 @@ export default function BOM() {
     try {
       const payload = {
         product_model: selectedModel,
+        gst_percent: gstPercent,
         items: items.map(i => ({
           raw_material: parseInt(i.raw_material),
           qty_per_unit: parseFloat(i.qty_per_unit) || 0,
@@ -113,6 +117,9 @@ export default function BOM() {
     const eff = parseFloat(item.qty_per_unit) * (1 + parseFloat(item.scrap_percent || 0) / 100);
     return sum + eff * rate;
   }, 0);
+
+  const totalGstAmount = totalCost * (gstPercent / 100);
+  const totalCostWithGst = totalCost + totalGstAmount;
 
   const downloadSample = async () => {
   try {
@@ -167,22 +174,37 @@ export default function BOM() {
             </select>
           </div>
           {selectedModel && (
-            <div className="flex gap-2 sm:mt-5">
-              <input type="file" ref={fileRef} accept=".csv,.xlsx,.xls" onChange={handleImport} className="hidden" />
-              <button onClick={() => fileRef.current?.click()} className="flex items-center gap-1.5 h-9 px-3 border border-slate-300 rounded-md text-sm hover:bg-slate-50" data-testid="bom-import-btn">
-                <Upload size={14} /> Import
-              </button>
-              {bom && (
-                <button onClick={downloadExport} className="flex items-center gap-1.5 h-9 px-3 border border-slate-300 rounded-md text-sm hover:bg-slate-50" data-testid="bom-export-btn">
-                  <Download size={14} /> Export
-                </button>
-              )}
-              <button
-                  onClick={downloadSample}
-                  className="flex items-center gap-1.5 h-9 px-3 border border-emerald-300 text-emerald-700 rounded-md text-sm hover:bg-emerald-50"
+            <div className="flex gap-2 items-end">
+              <div>
+                <label className="label-overline block mb-1">GST %</label>
+                <select
+                  value={gstPercent}
+                  onChange={e => setGstPercent(parseInt(e.target.value))}
+                  className="h-10 px-3 border border-slate-300 rounded-md text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 >
-                  <FileDown size={14} /> Sample
-              </button>
+                  <option value={0}>0%</option>
+                  <option value={5}>5%</option>
+                  <option value={12}>12%</option>
+                  <option value={18}>18%</option>
+                </select>
+              </div>
+              <div className="flex gap-2">
+                <input type="file" ref={fileRef} accept=".csv,.xlsx,.xls" onChange={handleImport} className="hidden" />
+                <button onClick={() => fileRef.current?.click()} className="flex items-center gap-1.5 h-10 px-3 border border-slate-300 rounded-md text-sm hover:bg-slate-50" data-testid="bom-import-btn">
+                  <Upload size={14} /> Import
+                </button>
+                {bom && (
+                  <button onClick={downloadExport} className="flex items-center gap-1.5 h-10 px-3 border border-slate-300 rounded-md text-sm hover:bg-slate-50" data-testid="bom-export-btn">
+                    <Download size={14} /> Export
+                  </button>
+                )}
+                <button
+                    onClick={downloadSample}
+                    className="flex items-center gap-1.5 h-10 px-3 border border-emerald-300 text-emerald-700 rounded-md text-sm hover:bg-emerald-50"
+                  >
+                    <FileDown size={14} /> Sample
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -190,7 +212,9 @@ export default function BOM() {
           <div className="mt-3 flex items-center gap-4 text-sm text-slate-600">
             <span className="font-mono">{bom.item_count} components</span>
             <span>•</span>
-            <span className="font-mono font-semibold text-orange-600">₹{Number(bom.total_cost).toFixed(4)} / unit</span>
+            <span className="font-mono font-semibold text-slate-700">₹{Number(bom.total_cost).toFixed(4)} / unit</span>
+            <span>•</span>
+            <span className="font-mono font-semibold text-orange-600">₹{Number(bom.total_cost_with_gst).toFixed(4)} / unit <span className="text-xs text-slate-500">(+{bom.gst_percent}% GST: ₹{Number(bom.total_gst_amount).toFixed(4)})</span></span>
             <span>•</span>
             <span className="text-slate-400">Updated {new Date(bom.updated_at).toLocaleDateString()}</span>
           </div>
@@ -205,15 +229,19 @@ export default function BOM() {
         <div className="flex items-center justify-center py-16"><div className="w-8 h-8 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" /></div>
       ) : (
         <div className="bg-white border border-slate-200 rounded-md shadow-sm">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-            <p className="font-heading font-bold text-slate-900">BOM Items ({items.length})</p>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-500 font-mono">Live Cost: <strong className="text-orange-600">₹{totalCost.toFixed(4)}</strong></span>
-              <button onClick={addRow} className="flex items-center gap-1 h-8 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm rounded-md" data-testid="bom-add-row">
-                <Plus size={13} /> Add Row
-              </button>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+              <p className="font-heading font-bold text-slate-900">BOM Items ({items.length})</p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-500 font-mono">Base Cost: <strong className="text-slate-700">₹{totalCost.toFixed(4)}</strong></span>
+                <span className="text-slate-300">|</span>
+                <span className="text-sm text-slate-500 font-mono">GST: <strong className="text-slate-700">₹{totalGstAmount.toFixed(4)}</strong></span>
+                <span className="text-slate-300">|</span>
+                <span className="text-sm text-slate-500 font-mono">Total: <strong className="text-orange-600">₹{totalCostWithGst.toFixed(4)}</strong></span>
+                <button onClick={addRow} className="flex items-center gap-1 h-8 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm rounded-md" data-testid="bom-add-row">
+                  <Plus size={13} /> Add Row
+                </button>
+              </div>
             </div>
-          </div>
 
           <div className="table-scroll">
             <table className="data-table w-full">
@@ -264,9 +292,14 @@ export default function BOM() {
               </tbody>
               {items.length > 0 && (
                 <tfoot>
+                  <tr className="bg-slate-50">
+                    <td colSpan={6} className="px-4 py-3 text-sm font-bold text-slate-700 text-right">Total BOM Cost (Base)</td>
+                    <td className="px-4 py-3 text-right font-mono font-semibold text-slate-700">₹{totalCost.toFixed(4)}</td>
+                    <td></td>
+                  </tr>
                   <tr className="bg-orange-50">
-                    <td colSpan={6} className="px-4 py-3 text-sm font-bold text-slate-700 text-right">Total BOM Cost</td>
-                    <td className="px-4 py-3 text-right font-mono font-black text-orange-600">₹{totalCost.toFixed(4)}</td>
+                    <td colSpan={6} className="px-4 py-3 text-sm font-bold text-orange-700 text-right">Total BOM Cost (with GST @ {gstPercent}%)</td>
+                    <td className="px-4 py-3 text-right font-mono font-black text-orange-600">₹{totalCostWithGst.toFixed(4)}</td>
                     <td></td>
                   </tr>
                 </tfoot>

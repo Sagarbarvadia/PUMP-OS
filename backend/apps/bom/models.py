@@ -4,10 +4,18 @@ from decimal import Decimal
 
 
 class BOM(models.Model):
+    GST_CHOICES = [
+        (0, '0%'),
+        (5, '5%'),
+        (12, '12%'),
+        (18, '18%'),
+    ]
+    
     product_model = models.ForeignKey(
         'master.ProductModel', on_delete=models.PROTECT, related_name='boms'
     )
     notes = models.TextField(blank=True)
+    gst_percent = models.IntegerField(choices=GST_CHOICES, default=18)
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
@@ -32,6 +40,17 @@ class BOM(models.Model):
             effective_qty = item.qty_per_unit * (1 + item.scrap_percent / 100)
             total += effective_qty * rate
         return round(total, 4)
+
+    @property
+    def total_cost_with_gst(self):
+        base_cost = self.total_cost
+        gst_amount = base_cost * (Decimal(self.gst_percent) / 100)
+        return round(base_cost + gst_amount, 4)
+
+    @property
+    def total_gst_amount(self):
+        base_cost = self.total_cost
+        return round(base_cost * (Decimal(self.gst_percent) / 100), 4)
 
     @property
     def item_count(self):
@@ -64,3 +83,14 @@ class BOMItem(models.Model):
         if rate == 0:
             rate = self.raw_material.default_cost
         return round(self.effective_qty_per_unit * rate, 4)
+
+    @property
+    def line_cost_with_gst(self):
+        base_cost = self.line_cost
+        gst_amount = base_cost * (Decimal(self.bom.gst_percent) / 100)
+        return round(base_cost + gst_amount, 4)
+
+    @property
+    def line_gst_amount(self):
+        base_cost = self.line_cost
+        return round(base_cost * (Decimal(self.bom.gst_percent) / 100), 4)
