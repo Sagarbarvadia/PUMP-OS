@@ -417,8 +417,8 @@ export default function RawMaterials() {
                     <td className="text-slate-900 font-mono">₹{Number(item.moving_avg_cost).toFixed(4)}</td>
                     <td className="text-slate-900 text-slate-500">{Number(item.reorder_level).toFixed(2)}</td>
                     <td>
-                      <span className={item.status ? 'badge-success' : 'badge-neutral'}>
-                        {item.status ? 'Active' : 'Inactive'}
+                      <span className={item.is_used ? 'badge-orange' : 'badge-success'}>
+                        {item.is_used ? 'USED' : 'NOT USED'}
                       </span>
                     </td>
                     <td className="text-left">
