@@ -395,7 +395,7 @@ export default function RawMaterials() {
                 <th>CATEGORY</th>
                 <th>UNIT</th>
                 <th onClick={() => handleSort("current_stock")}>STOCK</th>
-                <th onClick={() => handleSort("default_cost")}>DEFAULT COST</th>
+                <th onClick={() => handleSort("default_cost")}>BASIC COST</th>
                 <th>REORDER</th>
                 <th>STATUS</th>
                 <th>ACTIONS</th>
@@ -480,7 +480,7 @@ export default function RawMaterials() {
             </div>
 
             <div>
-              <label className="label-overline block mb-1.5">Default Cost</label>
+              <label className="label-overline block mb-1.5">Basic Cost</label>
               <input
                 type="number"
                 step="0.0001"

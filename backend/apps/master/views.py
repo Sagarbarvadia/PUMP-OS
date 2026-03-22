@@ -67,9 +67,15 @@ class RawMaterialDetailView(APIView):
         obj = self.get_object(pk)
         if not obj:
             return Response({'error': 'Not found'}, status=404)
-        # Check if used in BOM
+
+        # Check if used in BOM and report the product model(s)
         if obj.bom_items.exists():
-            return Response({'error': 'Cannot delete — item is used in BOM'}, status=400)
+            product_models = obj.bom_items.select_related('bom__product_model').values_list('bom__product_model__model_name', flat=True).distinct()
+            models_list = ', '.join(product_models)
+            if len(product_models) == 1:
+                return Response({'error': f'Cannot delete raw material — it is used in BOM for product model: {models_list}'}, status=400)
+            return Response({'error': f'Cannot delete raw material — it is used in BOM for product models: {models_list}'}, status=400)
+
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

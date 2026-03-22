@@ -66,6 +66,54 @@ class TestRawMaterials:
             resp = requests.get(f"{BASE_URL}/api/master/raw-materials/{item_id}/", headers=auth_headers)
             assert resp.status_code == 200
 
+    def test_delete_raw_material_blocked_when_used_in_bom(self, auth_headers):
+        # Create raw material
+        rm_payload = {
+            "item_id": "TEST_RM_BOM001",
+            "item_name": "TEST Raw Material BOM",
+            "unit": "KG",
+            "default_cost": 120.0,
+            "reorder_level": 10.0,
+            "status": True
+        }
+        rm_resp = requests.post(f"{BASE_URL}/api/master/raw-materials/", json=rm_payload, headers=auth_headers)
+        assert rm_resp.status_code in [200, 201]
+        rm_id = rm_resp.json().get("id")
+
+        # Create product model
+        pm_payload = {
+            "model_id": "TEST_PM_BOM001",
+            "model_name": "TEST PM BOM",
+            "category": "RO Pump",
+            "selling_price": 800.0,
+            "status": True
+        }
+        pm_resp = requests.post(f"{BASE_URL}/api/master/products/", json=pm_payload, headers=auth_headers)
+        assert pm_resp.status_code in [200, 201]
+        pm_id = pm_resp.json().get("id")
+
+        # Create BOM for this product model
+        bom_resp = requests.post(f"{BASE_URL}/api/bom/", json={"product_model": pm_id}, headers=auth_headers)
+        assert bom_resp.status_code in [200, 201]
+        bom_id = bom_resp.json().get("id")
+
+        # Add raw material to BOM items
+        bom_update_resp = requests.put(
+            f"{BASE_URL}/api/bom/{bom_id}/",
+            json={"items": [{"raw_material": rm_id, "qty_per_unit": 1.0, "scrap_percent": 0.0}]},
+            headers=auth_headers
+        )
+        assert bom_update_resp.status_code == 200
+
+        # Delete should be blocked
+        delete_resp = requests.delete(f"{BASE_URL}/api/master/raw-materials/{rm_id}/", headers=auth_headers)
+        assert delete_resp.status_code == 400
+        assert "used in BOM" in delete_resp.text
+
+        # Clean up: delete BOM and then raw material
+        requests.delete(f"{BASE_URL}/api/bom/{bom_id}/", headers=auth_headers)
+        requests.delete(f"{BASE_URL}/api/master/raw-materials/{rm_id}/", headers=auth_headers)
+
 # Master - Products
 class TestProducts:
     def test_get_products(self, auth_headers):
