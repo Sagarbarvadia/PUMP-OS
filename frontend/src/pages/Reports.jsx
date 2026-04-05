@@ -3,7 +3,7 @@ import { masterAPI, reportsAPI } from '@/services/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Download } from 'lucide-react';
 
-const TABS = ['RM Stock', 'Finished Goods', 'Monthly Production', 'Daily Production', 'BOM Cost', 'Wastage', 'Reorder', 'Stock Movement'];
+const TABS = ['RM Stock', 'Finished Goods', 'Monthly Production', 'Daily Production', 'Yearly Production', 'BOM Cost', 'Wastage', 'Reorder', 'Stock Movement'];
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -37,10 +37,11 @@ export default function Reports() {
         case 1: r = await reportsAPI.finishedGoods(); break;
         case 2: r = await reportsAPI.monthlyProduction({ month: filters.month, year: filters.year, model: filters.model }); break;
         case 3: r = await reportsAPI.dailyProduction({ date: filters.date }); break;
-        case 4: r = await reportsAPI.bomCost({ model: filters.model }); break;
-        case 5: r = await reportsAPI.wastage({ from: filters.from, to: filters.to }); break;
-        case 6: r = await reportsAPI.reorder(); break;
-        case 7: r = await reportsAPI.stockMovement({ item: filters.item, from: filters.from, to: filters.to }); break;
+        case 4: r = await reportsAPI.yearlyProduction({ from: filters.from, to: filters.to, model: filters.model }); break;
+        case 5: r = await reportsAPI.bomCost({ model: filters.model }); break;
+        case 6: r = await reportsAPI.wastage({ from: filters.from, to: filters.to }); break;
+        case 7: r = await reportsAPI.reorder(); break;
+        case 8: r = await reportsAPI.stockMovement({ item: filters.item, from: filters.from, to: filters.to }); break;
         default: return;
       }
       setData(r.data);
@@ -105,6 +106,25 @@ export default function Reports() {
             </div>
           )}
           {tab === 4 && (
+            <>
+              <div>
+                <label className="label-overline block mb-1">From</label>
+                <input type="date" value={filters.from} onChange={e => setFilters({ ...filters, from: e.target.value })} className="h-9 px-3 border border-slate-300 rounded-md text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+              </div>
+              <div>
+                <label className="label-overline block mb-1">To</label>
+                <input type="date" value={filters.to} onChange={e => setFilters({ ...filters, to: e.target.value })} className="h-9 px-3 border border-slate-300 rounded-md text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+              </div>
+              <div>
+                <label className="label-overline block mb-1">Model (optional)</label>
+                <select className="h-9 px-3 border border-slate-300 rounded-md text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500" value={filters.model} onChange={e => setFilters({ ...filters, model: e.target.value })}>
+                  <option value="">All Models</option>
+                  {products.map(p => <option key={p.id} value={p.id}>{p.model_name}</option>)}
+                </select>
+              </div>
+            </>
+          )}
+          {tab === 5 && (
             <div>
               <label className="label-overline block mb-1">Product Model *</label>
               <select required className="h-9 px-3 border border-slate-300 rounded-md text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500" value={filters.model} onChange={e => setFilters({ ...filters, model: e.target.value })}>
@@ -113,7 +133,7 @@ export default function Reports() {
               </select>
             </div>
           )}
-          {(tab === 5 || tab === 7) && (
+          {(tab === 6 || tab === 8) && (
             <>
               <div>
                 <label className="label-overline block mb-1">From</label>
@@ -239,7 +259,33 @@ function ReportResult({ tab, data }) {
     );
   }
 
-  if (tab === 4 && data.items) {
+  if (tab === 4) {
+    const rows = data.data || [];
+    return (
+      <div className="space-y-4">
+        <p className="label-overline">Period: {data.period?.from} — {data.period?.to}</p>
+        <div className="bg-white border border-slate-200 rounded-md shadow-sm">
+          <div className="table-scroll">
+            <table className="data-table w-full">
+              <thead><tr><th>Model</th><th className="text-right">Produced</th><th className="text-right">Rejected</th><th className="text-right">Net</th><th className="text-right">Total Cost</th><th className="text-right">Orders</th></tr></thead>
+              <tbody>
+                {rows.map((r, i) => <tr key={i}>
+                  <td className="font-medium">{r.model_name}</td>
+                  <td className="text-right font-mono">{r.total_produced}</td>
+                  <td className="text-right font-mono text-red-500">{r.total_rejected}</td>
+                  <td className="text-right font-mono font-bold text-emerald-600">{r.net_production}</td>
+                  <td className="text-right font-mono">₹{Number(r.total_cost).toFixed(2)}</td>
+                  <td className="text-right font-mono">{r.order_count}</td>
+                </tr>)}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (tab === 5 && data.items) {
     return (
       <div className="space-y-3">
         <div className="bg-white border border-slate-200 rounded-md p-4 flex items-center justify-between">

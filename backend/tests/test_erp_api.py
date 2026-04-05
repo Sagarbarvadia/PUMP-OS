@@ -2,6 +2,7 @@
 import pytest
 import requests
 import os
+from datetime import date
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 
@@ -163,3 +164,17 @@ class TestDashboard:
     def test_dashboard_unauthenticated(self):
         resp = requests.get(f"{BASE_URL}/api/dashboard/")
         assert resp.status_code in [401, 403]
+
+class TestReports:
+    def test_yearly_production_report(self, auth_headers):
+        today = date.today()
+        from_date = date(today.year - 1, today.month, 1)
+        resp = requests.get(
+            f"{BASE_URL}/api/reports/yearly-production/",
+            params={"from": from_date.isoformat(), "to": today.isoformat()},
+            headers=auth_headers
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "period" in data
+        assert "data" in data

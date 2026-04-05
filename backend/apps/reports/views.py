@@ -98,6 +98,55 @@ class MonthlyProductionReportView(APIView):
         return Response({'month': f"{year}-{month:02d}", 'data': result})
 
 
+class YearlyProductionReportView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        date_from = request.query_params.get('from')
+        date_to = request.query_params.get('to')
+        model_id = request.query_params.get('model')
+
+        if not date_from or not date_to:
+            return Response({'error': 'from and to dates are required'}, status=400)
+
+        from datetime import date as dt
+        try:
+            start_date = dt.fromisoformat(date_from)
+            end_date = dt.fromisoformat(date_to)
+        except ValueError:
+            return Response({'error': 'Invalid date format. Use YYYY-MM-DD.'}, status=400)
+
+        if start_date > end_date:
+            return Response({'error': 'from date must be before to date'}, status=400)
+
+        orders = ProductionOrder.objects.filter(date__gte=start_date, date__lte=end_date).select_related('product_model')
+        if model_id:
+            orders = orders.filter(product_model_id=model_id)
+
+        model_summary = orders.values('product_model').annotate(
+            model_id=F('product_model__model_id'),
+            model_name=F('product_model__model_name'),
+            total_produced=Sum('qty_produced'),
+            total_rejected=Sum('qty_rejected'),
+            total_cost=Sum('batch_cost'),
+            order_count=Count('id')
+        )
+
+        result = []
+        for item in model_summary:
+            result.append({
+                'model_id': item['model_id'],
+                'model_name': item['model_name'],
+                'total_produced': float(item['total_produced'] or 0),
+                'total_rejected': float(item['total_rejected'] or 0),
+                'net_production': float((item['total_produced'] or 0) - (item['total_rejected'] or 0)),
+                'total_cost': float(item['total_cost'] or 0),
+                'order_count': item['order_count']
+            })
+
+        return Response({'period': {'from': date_from, 'to': date_to}, 'data': result})
+
+
 class DailyProductionReportView(APIView):
     permission_classes = [IsAuthenticated]
 

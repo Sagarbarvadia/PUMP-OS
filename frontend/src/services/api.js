@@ -137,6 +137,7 @@ export const reportsAPI = {
   finishedGoods: () => api.get('/reports/finished-goods/'),
   monthlyProduction: params => api.get('/reports/monthly-production/', { params }),
   dailyProduction: params => api.get('/reports/daily-production/', { params }),
+  yearlyProduction: params => api.get('/reports/yearly-production/', { params }),
   bomCost: params => api.get('/reports/bom-cost/', { params }),
   wastage: params => api.get('/reports/wastage/', { params }),
   reorder: () => api.get('/reports/reorder/'),
