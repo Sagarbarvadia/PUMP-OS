@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { masterAPI, inventoryAPI } from '@/services/api';
 import { Plus, X, BookOpen, Search, ArrowUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 
-const TABS = ['Raw Material Stock', 'Finished Goods', 'Adjustments', 'Stock Ledger'];
+const TABS = ['Raw Material Stock', 'Finished Goods', 'Adjustments', 'Stock Ledger', 'Reorder Alerts'];
 
 function Modal({ title, onClose, children }) {
   return (
@@ -21,6 +22,7 @@ function Modal({ title, onClose, children }) {
 }
 
 export default function Inventory() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
@@ -114,7 +116,7 @@ export default function Inventory() {
         {TABS.map((t, i) => (
           <button
             key={t}
-            onClick={() => setTab(i)}
+            onClick={() => t === 'Reorder Alerts' ? navigate('/dashboard') : setTab(i)}
             className={`flex-1 h-8 rounded text-xs font-medium transition-colors ${tab === i ? 'bg-orange-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
             data-testid={`inventory-tab-${i}`}
           >

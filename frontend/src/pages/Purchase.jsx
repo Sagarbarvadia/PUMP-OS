@@ -217,81 +217,83 @@ export default function Purchase() {
         {loading ? (
           <div className="flex items-center justify-center py-16"><div className="w-8 h-8 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" /></div>
         ) : (
-          <div className="table-scroll">
-            <table className="data-table w-full" data-testid="purchases-table">
-              <thead>
-                <tr>
-                  <th>Date</th><th>Supplier</th><th>Item</th><th>Unit</th>
-                  <th className="text-right w-20">Qty</th><th className="text-right w-20">Rate</th>
-                  <th className="text-right w-16">GST</th>
-                  <th className="text-right w-20 ">Amount</th>
-                  <th>By</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {purchases.length === 0 ? (
-                  <tr><td colSpan={10} className="text-center py-10 text-slate-400">No purchases recorded yet</td></tr>
-                ) : purchases.map(p => (
-                  <tr key={p.id}>
-                    <td className="font-mono text-xs">{p.purchase_date}</td>
-                    <td className="font-medium">{p.supplier_name}</td>
-                    <td className="text-slate-700">{p.item_name}</td>
-                    <td className="text-xs font-mono">{p.item_unit}</td>
-                    <td className="text-right font-mono">{Number(p.quantity).toFixed(4)}</td>
-                    <td className="text-right font-mono">₹{Number(p.purchase_rate).toFixed(4)}</td>
-                    <td className="text-right font-mono">{p.gst_percent}%</td>
-                    <td className="text-right font-mono font-semibold text-slate-900">₹{Number(p.total_amount).toFixed(2)}</td>
-                    <td className="text-xs text-slate-400">{p.created_by_name}</td>
-                    <td className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(p)}
-                      className="text-slate-400 hover:text-blue-600"
-                    ><Pencil size={14} />
-                      
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(p.id)}
-                      className="text-slate-400 hover:text-blue-600"
-                    >
-                      <Trash2 size={14} />
-                      
-                    </button>
-                  </td>
+          <>
+            <div className="table-scroll">
+              <table className="data-table w-full" data-testid="purchases-table">
+                <thead>
+                  <tr>
+                    <th>Date</th><th>Supplier</th><th>Item</th><th>Unit</th>
+                    <th className="text-right w-20">Qty</th><th className="text-right w-20">Rate</th>
+                    <th className="text-right w-16">GST</th>
+                    <th className="text-right w-20 ">Amount</th>
+                    <th>By</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <button
-                onClick={() => setPage(prev => Math.max(prev - 1, 1))}
-                disabled={page <= 1}
-                className="h-9 px-3 rounded-md border border-slate-300 bg-white text-slate-700 disabled:opacity-50"
-              >Prev</button>
-              <button
-                onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
-                disabled={page >= totalPages}
-                className="h-9 px-3 rounded-md border border-slate-300 bg-white text-slate-700 disabled:opacity-50"
-              >Next</button>
-              <span>Page {page} of {totalPages}</span>
+                </thead>
+                <tbody>
+                  {purchases.length === 0 ? (
+                    <tr><td colSpan={10} className="text-center py-10 text-slate-400">No purchases recorded yet</td></tr>
+                  ) : purchases.map(p => (
+                    <tr key={p.id}>
+                      <td className="font-mono text-xs">{p.purchase_date}</td>
+                      <td className="font-medium">{p.supplier_name}</td>
+                      <td className="text-slate-700">{p.item_name}</td>
+                      <td className="text-xs font-mono">{p.item_unit}</td>
+                      <td className="text-right font-mono">{Number(p.quantity).toFixed(4)}</td>
+                      <td className="text-right font-mono">₹{Number(p.purchase_rate).toFixed(4)}</td>
+                      <td className="text-right font-mono">{p.gst_percent}%</td>
+                      <td className="text-right font-mono font-semibold text-slate-900">₹{Number(p.total_amount).toFixed(2)}</td>
+                      <td className="text-xs text-slate-400">{p.created_by_name}</td>
+                      <td className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(p)}
+                        className="text-slate-400 hover:text-blue-600"
+                      ><Pencil size={14} />
+                        
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(p.id)}
+                        className="text-slate-400 hover:text-blue-600"
+                      >
+                        <Trash2 size={14} />
+                        
+                      </button>
+                    </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div className="flex items-center gap-3 text-sm text-slate-600">
-              <label className="flex items-center gap-2">
-                <span>Page size</span>
-                <select
-                  value={pageSize}
-                  onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
-                  className="h-9 px-2 border border-slate-300 rounded-md bg-white text-sm"
-                >
-                  {[10, 25, 50, 100].map(size => <option key={size} value={size}>{size}</option>)}
-                </select>
-              </label>
-              <span>{total.toLocaleString()} results</span>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
+              <div className="flex items-center gap-2 text-sm text-slate-600">
+                <button
+                  onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                  disabled={page <= 1}
+                  className="h-9 px-3 rounded-md border border-slate-300 bg-white text-slate-700 disabled:opacity-50"
+                >Prev</button>
+                <button
+                  onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={page >= totalPages}
+                  className="h-9 px-3 rounded-md border border-slate-300 bg-white text-slate-700 disabled:opacity-50"
+                >Next</button>
+                <span>Page {page} of {totalPages}</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-slate-600">
+                <label className="flex items-center gap-2">
+                  <span>Page size</span>
+                  <select
+                    value={pageSize}
+                    onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
+                    className="h-9 px-2 border border-slate-300 rounded-md bg-white text-sm"
+                  >
+                    {[10, 25, 50, 100].map(size => <option key={size} value={size}>{size}</option>)}
+                  </select>
+                </label>
+                <span>{total.toLocaleString()} results</span>
+              </div>
             </div>
-          </div>
+          </>
         )}
       </div>
 
