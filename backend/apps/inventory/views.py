@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from urllib3 import request
 from django.db import transaction
 
@@ -33,9 +33,43 @@ class PurchaseListView(APIView):
     def get(self, request):
         entries = PurchaseEntry.objects.select_related('raw_material', 'created_by').all()
         item_id = request.query_params.get('item')
+        search = request.query_params.get('search', '').strip()
+        date_from = request.query_params.get('date_from')
+        date_to = request.query_params.get('date_to')
+        page = int(request.query_params.get('page', 1)) if request.query_params.get('page', '1').isdigit() else 1
+        page_size = int(request.query_params.get('page_size', 25)) if request.query_params.get('page_size', '25').isdigit() else 25
+        page_size = min(max(page_size, 10), 100)
+
         if item_id:
             entries = entries.filter(raw_material_id=item_id)
-        return Response(PurchaseEntrySerializer(entries, many=True).data)
+        if search:
+            search_filters = Q(supplier_name__icontains=search) | Q(raw_material__item_name__icontains=search) | Q(raw_material__item_id__icontains=search)
+            if search.isdigit():
+                search_filters |= Q(id=int(search))
+            entries = entries.filter(search_filters)
+        if date_from:
+            entries = entries.filter(purchase_date__gte=date_from)
+        if date_to:
+            entries = entries.filter(purchase_date__lte=date_to)
+
+        total = entries.count()
+        total_pages = (total + page_size - 1) // page_size if page_size else 1
+        if page < 1:
+            page = 1
+        if page > total_pages and total_pages > 0:
+            page = total_pages
+
+        offset = (page - 1) * page_size
+        entries = entries.order_by('-purchase_date', '-created_at')[offset:offset + page_size]
+        serialized = PurchaseEntrySerializer(entries, many=True).data
+
+        return Response({
+            'data': serialized,
+            'total': total,
+            'page': page,
+            'page_size': page_size,
+            'total_pages': total_pages,
+        })
 
     def post(self, request):
         if request.user.role not in ['ADMIN', 'STORE_MANAGER']:

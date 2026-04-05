@@ -36,21 +36,53 @@ export default function Production() {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [search, setSearch] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [dateFrom, setDateFrom] = useState(today.slice(0, 7) + '-01');
+  const [dateTo, setDateTo] = useState(today);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [sortField, setSortField] = useState('date');
   const [sortDirection, setSortDirection] = useState('desc');
-  
 
-  const fetchAll = () => {
-    Promise.all([productionAPI.orders(), masterAPI.products({ status: 'true' })]).then(([o, p]) => {
-      setOrders(o.data);
-      setProducts(p.data);
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const res = await productionAPI.orders({
+        page,
+        page_size: pageSize,
+        search: searchTerm,
+        date_from: dateFrom,
+        date_to: dateTo,
+      });
+      setOrders(res.data.data);
+      setTotal(res.data.total);
+      setTotalPages(res.data.total_pages);
+      setPage(res.data.page);
+    } catch (err) {
+      console.error('Failed to load production orders', err.response || err);
+    } finally {
       setLoading(false);
-    }).catch(() => {
-      setLoading(false);
-    });
+    }
   };
-  useEffect(() => { fetchAll(); }, []);
+
+  useEffect(() => {
+    masterAPI.products({ status: 'true' }).then(r => setProducts(r.data)).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(1);
+      setSearchTerm(search);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [page, pageSize, searchTerm, dateFrom, dateTo]);
 
   const statsProduced = orders.reduce((sum, o) => sum + Number(o.qty_produced || 0), 0);
   const statsRejected = orders.reduce((sum, o) => sum + Number(o.qty_rejected || 0), 0);
@@ -88,7 +120,7 @@ export default function Production() {
     setModalOpen(false);
     setEditingId(null);
     setForm(EMPTY);
-    fetchAll();
+    fetchOrders();
 
   } catch (err) {
 
@@ -121,13 +153,22 @@ export default function Production() {
   try {
     await productionAPI.deleteOrder(id);
     toast.success("Order deleted");
-    fetchAll();
+    fetchOrders();
   } catch (error) {
     console.error(error.response?.data || error);
     toast.error("Delete failed");
   }
 };
 
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages || newPage === page) return;
+    setPage(newPage);
+  };
+
+  const handlePageSizeChange = (size) => {
+    setPageSize(size);
+    setPage(1);
+  };
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -138,31 +179,24 @@ export default function Production() {
     }
   };
 
-  const filteredAndSortedOrders = orders
-    .filter(order =>
-      order.order_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.date.includes(searchTerm) ||
-      order.model_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.batch_no.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      let aVal, bVal;
-      if (sortField === 'order_no') {
-        aVal = a.order_no;
-        bVal = b.order_no;
-      } else if (sortField === 'date') {
-        aVal = new Date(a.date);
-        bVal = new Date(b.date);
-      } else if (sortField === 'model') {
-        aVal = a.model_name.toLowerCase();
-        bVal = b.model_name.toLowerCase();
-      }
-      if (sortDirection === 'asc') {
-        return aVal > bVal ? 1 : -1;
-      } else {
-        return aVal < bVal ? 1 : -1;
-      }
-    });
+  const displayedOrders = [...orders].sort((a, b) => {
+    let aVal, bVal;
+    if (sortField === 'order_no') {
+      aVal = a.order_no;
+      bVal = b.order_no;
+    } else if (sortField === 'date') {
+      aVal = new Date(a.date);
+      bVal = new Date(b.date);
+    } else if (sortField === 'model') {
+      aVal = a.model_name.toLowerCase();
+      bVal = b.model_name.toLowerCase();
+    }
+    if (sortDirection === 'asc') {
+      return aVal > bVal ? 1 : -1;
+    } else {
+      return aVal < bVal ? 1 : -1;
+    }
+  });
 
   return (
     <div className="space-y-4 animate-fade-in" data-testid="production-page">
@@ -170,7 +204,7 @@ export default function Production() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div className="stat-card flex flex-col items-center justify-center h-20">
           <p className="label-overline">Total Orders</p>
-          <p className="font-heading font-black text-2xl font-mono">{orders.length}</p>
+          <p className="font-heading font-black text-2xl font-mono">{total.toLocaleString()}</p>
         </div>
         <div className="stat-card text-center py-3">
           <p className="label-overline">Total Produced</p>
@@ -196,16 +230,34 @@ export default function Production() {
         </button>
       </div>
 
-      <div className="flex items-center gap-4 mb-4">
-        <div className="flex-1 max-w-md">
-          <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+      <div className="grid gap-4 md:grid-cols-[1fr_auto] items-center mb-4">
+        <div className="relative max-w-md">
+          <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search orders..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full h-9 pl-10 pr-3 border border-slate-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+          />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="label-overline block mb-1">From</label>
             <input
-              type="text"
-              placeholder="Search orders..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-9 pl-10 pr-3 border border-slate-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              type="date"
+              value={dateFrom}
+              onChange={e => { setDateFrom(e.target.value); setPage(1); }}
+              className="w-full h-9 px-3 border border-slate-300 rounded-md text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+          <div>
+            <label className="label-overline block mb-1">To</label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={e => { setDateTo(e.target.value); setPage(1); }}
+              className="w-full h-9 px-3 border border-slate-300 rounded-md text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
         </div>
@@ -254,13 +306,13 @@ export default function Production() {
               </tr>
               </thead>
               <tbody>
-                  {filteredAndSortedOrders.length === 0 ? (
+                  {displayedOrders.length === 0 ? (
                   <tr>
                   <td colSpan={11} className="text-center py-10 text-slate-400">
                   {orders.length === 0 ? 'No production orders yet' : 'No orders match your search'}
                   </td>
                   </tr>
-                  ) : filteredAndSortedOrders.map(o => (
+                  ) : displayedOrders.map(o => (
                  <tr key={o.id} className="h-11">
                   <td className="font-mono text-xs font-semibold text-orange-600">{o.order_no}</td>
                   <td className="font-mono text-xs">{o.date}</td>
@@ -307,6 +359,34 @@ export default function Production() {
                   ))}
                 </tbody>
             </table>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
+              <div className="text-sm text-slate-600">
+                Showing {orders.length === 0 ? 0 : (page - 1) * pageSize + 1} - {Math.min(page * pageSize, total)} of {total.toLocaleString()} orders
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={() => handlePageChange(page - 1)}
+                  disabled={page <= 1}
+                  className="h-9 px-3 rounded-md border border-slate-300 bg-white text-slate-700 disabled:opacity-50"
+                >Prev</button>
+                <span className="text-sm text-slate-700">Page {page} of {totalPages}</span>
+                <button
+                  onClick={() => handlePageChange(page + 1)}
+                  disabled={page >= totalPages}
+                  className="h-9 px-3 rounded-md border border-slate-300 bg-white text-slate-700 disabled:opacity-50"
+                >Next</button>
+                <label className="flex items-center gap-2 text-sm text-slate-600">
+                  Rows
+                  <select
+                    value={pageSize}
+                    onChange={e => handlePageSizeChange(Number(e.target.value))}
+                    className="h-9 px-2 border border-slate-300 rounded-md bg-white text-sm"
+                  >
+                    {[10, 25, 50, 100].map(size => <option key={size} value={size}>{size}</option>)}
+                  </select>
+                </label>
+              </div>
+            </div>
           </div>
         )}
       </div>

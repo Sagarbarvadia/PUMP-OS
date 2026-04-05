@@ -23,28 +23,60 @@ const today = new Date().toISOString().slice(0, 10);
 const EMPTY = { purchase_date: today, supplier_name: '', raw_material: '', quantity: '', purchase_rate: '', gst_percent: 18, notes: '' };
 
 export default function Purchase() {
-  
   const [purchases, setPurchases] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [search, setSearch] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [dateFrom, setDateFrom] = useState(today.slice(0, 7) + '-01');
+  const [dateTo, setDateTo] = useState(today);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchAll = () => {
-    Promise.all([
-      inventoryAPI.purchases(),
-      masterAPI.rawMaterials({ status: 'true' })
-    ]).then(([p, m]) => {
-      setPurchases(p.data);
-      setMaterials(m.data);
+  useEffect(() => {
+    masterAPI.rawMaterials({ status: 'true' }).then(r => setMaterials(r.data)).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(1);
+      setSearchTerm(search);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const fetchPurchases = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await inventoryAPI.purchases({
+        page,
+        page_size: pageSize,
+        search: searchTerm,
+        date_from: dateFrom,
+        date_to: dateTo,
+      });
+      setPurchases(res.data.data);
+      setTotal(res.data.total);
+      setTotalPages(res.data.total_pages);
+      setPage(res.data.page);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to load purchases');
+    } finally {
       setLoading(false);
-    }).catch(() => {
-      setLoading(false);
-    });
+    }
   };
-  useEffect(() => { fetchAll(); }, []);
+
+  useEffect(() => {
+    fetchPurchases();
+  }, [page, pageSize, searchTerm, dateFrom, dateTo]);
 
   const totalAmount = () => {
     const q = parseFloat(form.quantity) || 0;
@@ -61,7 +93,7 @@ export default function Purchase() {
     try {
       await inventoryAPI.deletePurchase(id);
       toast.success("Purchase deleted");
-      fetchAll();
+      fetchPurchases();
     } catch (err) {
       toast.error("Delete failed");
     }
@@ -117,7 +149,7 @@ export default function Purchase() {
     setModalOpen(false);
     setForm(EMPTY);
     setEditingId(null);
-    fetchAll();
+    fetchPurchases();
 
   } catch (err) {
 
@@ -134,17 +166,53 @@ export default function Purchase() {
 
   return (
     <div className="space-y-4 animate-fade-in" data-testid="purchase-page">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">{purchases.length} entries</p>
-        <button
-          onClick={() => { setForm(EMPTY); setModalOpen(true); }}
-          className="flex items-center gap-2 h-9 px-4 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-md"
-          data-testid="add-purchase-btn"
-        >
-          <Plus size={15} /> New Purchase
-        </button>
-      </div>
+      <div className="grid gap-3 md:grid-cols-[1fr_auto] items-center">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search supplier or item..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full h-9 pl-10 pr-3 border border-slate-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+          <div>
+            <label className="label-overline block mb-1">From</label>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={e => { setDateFrom(e.target.value); setPage(1); }}
+              className="w-full h-9 px-3 border border-slate-300 rounded-md text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+          <div>
+            <label className="label-overline block mb-1">To</label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={e => { setDateTo(e.target.value); setPage(1); }}
+              className="w-full h-9 px-3 border border-slate-300 rounded-md text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+        </div>
 
+        <div className="flex items-center justify-end gap-2">
+          <div className="text-xs text-slate-500 text-right">
+            <p>{total.toLocaleString()} purchases</p>
+            <p>Page {page} of {totalPages}</p>
+          </div>
+          <button
+            onClick={() => { setForm(EMPTY); setModalOpen(true); }}
+            className="flex items-center gap-2 h-9 px-4 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-md"
+            data-testid="add-purchase-btn"
+          >
+            <Plus size={15} /> New Purchase
+          </button>
+        </div>
+      </div>
+      {error && <div className="text-sm text-red-600">{error}</div>}
       <div className="bg-white border border-slate-200 rounded-md shadow-sm">
         {loading ? (
           <div className="flex items-center justify-center py-16"><div className="w-8 h-8 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" /></div>
@@ -163,7 +231,7 @@ export default function Purchase() {
               </thead>
               <tbody>
                 {purchases.length === 0 ? (
-                  <tr><td colSpan={9} className="text-center py-10 text-slate-400">No purchases recorded yet</td></tr>
+                  <tr><td colSpan={10} className="text-center py-10 text-slate-400">No purchases recorded yet</td></tr>
                 ) : purchases.map(p => (
                   <tr key={p.id}>
                     <td className="font-mono text-xs">{p.purchase_date}</td>
@@ -195,6 +263,34 @@ export default function Purchase() {
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <button
+                onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                disabled={page <= 1}
+                className="h-9 px-3 rounded-md border border-slate-300 bg-white text-slate-700 disabled:opacity-50"
+              >Prev</button>
+              <button
+                onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={page >= totalPages}
+                className="h-9 px-3 rounded-md border border-slate-300 bg-white text-slate-700 disabled:opacity-50"
+              >Next</button>
+              <span>Page {page} of {totalPages}</span>
+            </div>
+            <div className="flex items-center gap-3 text-sm text-slate-600">
+              <label className="flex items-center gap-2">
+                <span>Page size</span>
+                <select
+                  value={pageSize}
+                  onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
+                  className="h-9 px-2 border border-slate-300 rounded-md bg-white text-sm"
+                >
+                  {[10, 25, 50, 100].map(size => <option key={size} value={size}>{size}</option>)}
+                </select>
+              </label>
+              <span>{total.toLocaleString()} results</span>
+            </div>
           </div>
         )}
       </div>

@@ -9,8 +9,8 @@ class PurchaseEntry(models.Model):
         (18, '18%'),
     ]
     
-    purchase_date = models.DateField()
-    supplier_name = models.CharField(max_length=200)
+    purchase_date = models.DateField(db_index=True)
+    supplier_name = models.CharField(max_length=200, db_index=True)
     raw_material = models.ForeignKey(
         'master.RawMaterial', on_delete=models.PROTECT, related_name='purchases'
     )
@@ -27,6 +27,10 @@ class PurchaseEntry(models.Model):
     class Meta:
         db_table = 'purchase_entries'
         ordering = ['-purchase_date', '-created_at']
+        indexes = [
+            models.Index(fields=['purchase_date']),
+            models.Index(fields=['supplier_name']),
+        ]
 
     def __str__(self):
         return f"Purchase {self.id} - {self.raw_material.item_name} x {self.quantity}"

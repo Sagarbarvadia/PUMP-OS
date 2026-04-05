@@ -10,8 +10,8 @@ class ProductionOrder(models.Model):
         ('CANCELLED', 'Cancelled'),
     ]
 
-    order_no = models.CharField(max_length=50, unique=True)
-    date = models.DateField()
+    order_no = models.CharField(max_length=50, unique=True, db_index=True)
+    date = models.DateField(db_index=True)
     product_model = models.ForeignKey(
         'master.ProductModel', on_delete=models.PROTECT, related_name='production_orders'
     )
@@ -32,6 +32,11 @@ class ProductionOrder(models.Model):
     class Meta:
         db_table = 'production_orders'
         ordering = ['-date', '-created_at']
+        indexes = [
+            models.Index(fields=['date']),
+            models.Index(fields=['order_no']),
+            models.Index(fields=['product_model']),
+        ]
 
     def __str__(self):
         return f"{self.order_no} - {self.product_model.model_name}"

@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import ProductionOrder, ProductionMaterialUsage
 from .serializers import ProductionOrderSerializer, ProductionOrderListSerializer
 from apps.bom.models import BOM
+from django.db.models import Q
 from apps.master.models import RawMaterial
 from apps.inventory.models import StockLedger, FinishedGoodsStock, ScrapStock
 
@@ -35,8 +36,13 @@ class ProductionOrderListView(APIView):
         orders = ProductionOrder.objects.select_related('product_model', 'created_by').all()
         status_filter = request.query_params.get('status')
         model_id = request.query_params.get('model')
-        date_from = request.query_params.get('from')
-        date_to = request.query_params.get('to')
+        date_from = request.query_params.get('date_from') or request.query_params.get('from')
+        date_to = request.query_params.get('date_to') or request.query_params.get('to')
+        search = request.query_params.get('search', '').strip()
+        page = int(request.query_params.get('page', 1)) if request.query_params.get('page', '1').isdigit() else 1
+        page_size = int(request.query_params.get('page_size', 25)) if request.query_params.get('page_size', '25').isdigit() else 25
+        page_size = min(max(page_size, 10), 100)
+
         if status_filter:
             orders = orders.filter(status=status_filter)
         if model_id:
@@ -45,7 +51,33 @@ class ProductionOrderListView(APIView):
             orders = orders.filter(date__gte=date_from)
         if date_to:
             orders = orders.filter(date__lte=date_to)
-        return Response(ProductionOrderListSerializer(orders, many=True).data)
+        if search:
+            search_filters = (
+                Q(order_no__icontains=search) |
+                Q(batch_no__icontains=search) |
+                Q(product_model__model_name__icontains=search) |
+                Q(product_model__model_id__icontains=search)
+            )
+            orders = orders.filter(search_filters)
+
+        total = orders.count()
+        total_pages = (total + page_size - 1) // page_size if page_size else 1
+        if page < 1:
+            page = 1
+        if page > total_pages and total_pages > 0:
+            page = total_pages
+
+        offset = (page - 1) * page_size
+        orders = orders.order_by('-date', '-created_at')[offset:offset + page_size]
+        serialized = ProductionOrderListSerializer(orders, many=True).data
+
+        return Response({
+            'data': serialized,
+            'total': total,
+            'page': page,
+            'page_size': page_size,
+            'total_pages': total_pages,
+        })
 
     def post(self, request):
         if request.user.role not in ['ADMIN', 'PRODUCTION_MANAGER', 'STORE_MANAGER']:
