@@ -7,6 +7,17 @@ const TABS = ['RM Stock', 'Finished Goods', 'Monthly Production', 'Daily Product
 
 const today = new Date().toISOString().slice(0, 10);
 
+const isNumericColumn = (rows, key) => rows.some(r => typeof r[key] === 'number');
+const formatValue = value => typeof value === 'number' ? Number(value).toFixed(2) : String(value ?? '—');
+const getTotals = rows => rows.reduce((acc, row) => {
+  Object.entries(row).forEach(([key, value]) => {
+    if (typeof value === 'number' && !Number.isNaN(value)) {
+      acc[key] = (acc[key] || 0) + value;
+    }
+  });
+  return acc;
+}, {});
+
 export default function Reports() {
   const [tab, setTab] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -166,6 +177,13 @@ function ReportResult({ tab, data }) {
 
   if (tab === 0) {
     const items = data.items || [];
+    const totals = items.reduce((acc, i) => {
+      acc.current_stock = (acc.current_stock || 0) + Number(i.current_stock || 0);
+      acc.moving_avg_cost = (acc.moving_avg_cost || 0) + Number(i.moving_avg_cost || 0);
+      acc.stock_value = (acc.stock_value || 0) + Number(i.stock_value || 0);
+      return acc;
+    }, {});
+
     return (
       <div className="space-y-3">
         <div className="bg-white border border-slate-200 rounded-md p-4 flex items-center justify-between">
@@ -189,6 +207,15 @@ function ReportResult({ tab, data }) {
                   </tr>
                 ))}
               </tbody>
+              <tfoot>
+                <tr className="bg-slate-50 font-semibold">
+                  <td colSpan={3} className="text-right">Totals</td>
+                  <td className="text-right font-mono">{Number(totals.current_stock || 0).toFixed(4)}</td>
+                  <td className="text-right font-mono">₹{Number(totals.moving_avg_cost || 0).toFixed(4)}</td>
+                  <td className="text-right font-mono">₹{Number(totals.stock_value || 0).toFixed(2)}</td>
+                  <td />
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -198,6 +225,13 @@ function ReportResult({ tab, data }) {
 
   if (tab === 1) {
     const fgRows = Array.isArray(data) ? data : [];
+    const totals = fgRows.reduce((acc, d) => {
+      acc.finished_goods = (acc.finished_goods || 0) + Number(d.finished_goods || 0);
+      acc.scrap = (acc.scrap || 0) + Number(d.scrap || 0);
+      acc.manufacturing_cost = (acc.manufacturing_cost || 0) + Number(d.manufacturing_cost || 0);
+      acc.fg_value = (acc.fg_value || 0) + Number(d.fg_value || 0);
+      return acc;
+    }, {});
     return (
       <div className="bg-white border border-slate-200 rounded-md shadow-sm">
         <div className="table-scroll">
@@ -215,6 +249,17 @@ function ReportResult({ tab, data }) {
                 <td className="text-right font-mono font-semibold">₹{Number(d.fg_value).toFixed(2)}</td>
               </tr>)}
             </tbody>
+            {fgRows.length > 0 && (
+              <tfoot>
+                <tr className="bg-slate-50 font-semibold">
+                  <td colSpan={2} className="text-right">Totals</td>
+                  <td className="text-right font-mono">{Number(totals.finished_goods || 0).toFixed(2)}</td>
+                  <td className="text-right font-mono">{Number(totals.scrap || 0).toFixed(2)}</td>
+                  <td className="text-right font-mono">₹{Number(totals.manufacturing_cost || 0).toFixed(2)}</td>
+                  <td className="text-right font-mono">₹{Number(totals.fg_value || 0).toFixed(2)}</td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
       </div>
@@ -223,6 +268,15 @@ function ReportResult({ tab, data }) {
 
   if (tab === 2) {
     const rows = data.data || [];
+    const totals = rows.reduce((acc, r) => {
+      acc.total_produced = (acc.total_produced || 0) + Number(r.total_produced || 0);
+      acc.total_rejected = (acc.total_rejected || 0) + Number(r.total_rejected || 0);
+      acc.net_production = (acc.net_production || 0) + Number(r.net_production || 0);
+      acc.total_cost = (acc.total_cost || 0) + Number(r.total_cost || 0);
+      acc.order_count = (acc.order_count || 0) + Number(r.order_count || 0);
+      return acc;
+    }, {});
+
     return (
       <div className="space-y-4">
         <p className="label-overline">Period: {data.month}</p>
@@ -252,6 +306,18 @@ function ReportResult({ tab, data }) {
                   <td className="text-right font-mono">{r.order_count}</td>
                 </tr>)}
               </tbody>
+              {rows.length > 0 && (
+                <tfoot>
+                  <tr className="bg-slate-50 font-semibold">
+                    <td className="text-right">Totals</td>
+                    <td className="text-right font-mono">{Number(totals.total_produced || 0).toFixed(2)}</td>
+                    <td className="text-right font-mono">{Number(totals.total_rejected || 0).toFixed(2)}</td>
+                    <td className="text-right font-mono">{Number(totals.net_production || 0).toFixed(2)}</td>
+                    <td className="text-right font-mono">₹{Number(totals.total_cost || 0).toFixed(2)}</td>
+                    <td className="text-right font-mono">{Number(totals.order_count || 0).toFixed(0)}</td>
+                  </tr>
+                </tfoot>
+              )}
             </table>
           </div>
         </div>
@@ -261,6 +327,15 @@ function ReportResult({ tab, data }) {
 
   if (tab === 4) {
     const rows = data.data || [];
+    const totals = rows.reduce((acc, r) => {
+      acc.total_produced = (acc.total_produced || 0) + Number(r.total_produced || 0);
+      acc.total_rejected = (acc.total_rejected || 0) + Number(r.total_rejected || 0);
+      acc.net_production = (acc.net_production || 0) + Number(r.net_production || 0);
+      acc.total_cost = (acc.total_cost || 0) + Number(r.total_cost || 0);
+      acc.order_count = (acc.order_count || 0) + Number(r.order_count || 0);
+      return acc;
+    }, {});
+
     return (
       <div className="space-y-4">
         <p className="label-overline">Period: {data.period?.from} — {data.period?.to}</p>
@@ -278,6 +353,18 @@ function ReportResult({ tab, data }) {
                   <td className="text-right font-mono">{r.order_count}</td>
                 </tr>)}
               </tbody>
+              {rows.length > 0 && (
+                <tfoot>
+                  <tr className="bg-slate-50 font-semibold">
+                    <td className="text-right">Totals</td>
+                    <td className="text-right font-mono">{Number(totals.total_produced || 0).toFixed(2)}</td>
+                    <td className="text-right font-mono">{Number(totals.total_rejected || 0).toFixed(2)}</td>
+                    <td className="text-right font-mono">{Number(totals.net_production || 0).toFixed(2)}</td>
+                    <td className="text-right font-mono">₹{Number(totals.total_cost || 0).toFixed(2)}</td>
+                    <td className="text-right font-mono">{Number(totals.order_count || 0).toFixed(0)}</td>
+                  </tr>
+                </tfoot>
+              )}
             </table>
           </div>
         </div>
@@ -286,6 +373,14 @@ function ReportResult({ tab, data }) {
   }
 
   if (tab === 5 && data.items) {
+    const totals = data.items.reduce((acc, i) => {
+      acc.qty_per_unit = (acc.qty_per_unit || 0) + Number(i.qty_per_unit || 0);
+      acc.effective_qty = (acc.effective_qty || 0) + Number(i.effective_qty || 0);
+      acc.rate = (acc.rate || 0) + Number(i.rate || 0);
+      acc.line_cost = (acc.line_cost || 0) + Number(i.line_cost || 0);
+      return acc;
+    }, {});
+
     return (
       <div className="space-y-3">
         <div className="bg-white border border-slate-200 rounded-md p-4 flex items-center justify-between">
@@ -314,6 +409,17 @@ function ReportResult({ tab, data }) {
                   <td className="text-xs text-slate-500">{i.process_stage || '—'}</td>
                 </tr>)}
               </tbody>
+              <tfoot>
+                <tr className="bg-slate-50 font-semibold">
+                  <td colSpan={3} className="text-right">Totals</td>
+                  <td className="text-right font-mono">{Number(totals.qty_per_unit || 0).toFixed(2)}</td>
+                  <td />
+                  <td className="text-right font-mono">{Number(totals.effective_qty || 0).toFixed(2)}</td>
+                  <td className="text-right font-mono">₹{Number(totals.rate || 0).toFixed(2)}</td>
+                  <td className="text-right font-mono">₹{Number(totals.line_cost || 0).toFixed(2)}</td>
+                  <td />
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -325,18 +431,31 @@ function ReportResult({ tab, data }) {
   const rows = Array.isArray(data) ? data : (data.orders || data.data || [data]);
   if (rows.length === 0) return <div className="bg-white border border-slate-200 rounded-md p-8 text-center text-slate-400">No data for selected criteria</div>;
   const keys = Object.keys(rows[0]);
+  const totals = getTotals(rows);
+
   return (
     <div className="bg-white border border-slate-200 rounded-md shadow-sm">
       <div className="table-scroll">
         <table className="data-table w-full">
-          <thead><tr>{keys.map(k => <th key={k}>{k.replace(/_/g, ' ').toUpperCase()}</th>)}</tr></thead>
+          <thead><tr>{keys.map(k => <th key={k} className={isNumericColumn(rows, k) ? 'text-right' : ''}>{k.replace(/_/g, ' ').toUpperCase()}</th>)}</tr></thead>
           <tbody>
             {rows.map((r, i) => (
               <tr key={i}>
-                {keys.map(k => <td key={k} className={typeof r[k] === 'number' ? 'font-mono text-right' : ''}>{typeof r[k] === 'number' ? Number(r[k]).toFixed(2) : String(r[k] ?? '—')}</td>)}
+                {keys.map(k => (
+                  <td key={k} className={isNumericColumn(rows, k) ? 'font-mono text-right' : ''}>{formatValue(r[k])}</td>
+                ))}
               </tr>
             ))}
           </tbody>
+          <tfoot>
+            <tr className="bg-slate-50 font-semibold">
+              {keys.map((k, idx) => (
+                <td key={k} className={isNumericColumn(rows, k) ? 'font-mono text-right' : idx === 0 ? 'text-right' : ''}>
+                  {idx === 0 ? 'Totals' : isNumericColumn(rows, k) ? formatValue(totals[k] || 0) : ''}
+                </td>
+              ))}
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>
