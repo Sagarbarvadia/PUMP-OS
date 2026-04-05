@@ -87,8 +87,8 @@ class MonthlyProductionReportView(APIView):
         result = []
         for item in model_summary:
             result.append({
-                'model_id': item['product_model__model_id'],
-                'model_name': item['product_model__model_name'],
+                'model_id': item['model_id'],
+                'model_name': item['model_name'],
                 'total_produced': float(item['total_produced'] or 0),
                 'total_rejected': float(item['total_rejected'] or 0),
                 'net_production': float((item['total_produced'] or 0) - (item['total_rejected'] or 0)),
