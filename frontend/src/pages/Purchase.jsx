@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { masterAPI, inventoryAPI } from '@/services/api';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, X, Search, AlertCircle, Upload, FileDown, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
@@ -52,7 +52,7 @@ export default function Purchase() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const fetchPurchases = async () => {
+  const fetchPurchases = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -72,11 +72,11 @@ export default function Purchase() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize, searchTerm, dateFrom, dateTo]);
 
   useEffect(() => {
     fetchPurchases();
-  }, [page, pageSize, searchTerm, dateFrom, dateTo]);
+  }, [fetchPurchases]);
 
   const totalAmount = () => {
     const q = parseFloat(form.quantity) || 0;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { masterAPI, productionAPI } from '@/services/api';
 import { Plus, Pencil, Trash2, X, Search, AlertCircle, Upload, FileDown, CheckCircle2, AlertTriangle,ChevronRight, Info, ChevronUp, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
@@ -47,7 +47,7 @@ export default function Production() {
   const [sortField, setSortField] = useState('date');
   const [sortDirection, setSortDirection] = useState('desc');
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
       const res = await productionAPI.orders({
@@ -66,7 +66,7 @@ export default function Production() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize, searchTerm, dateFrom, dateTo]);
 
   useEffect(() => {
     masterAPI.products({ status: 'true' }).then(r => setProducts(r.data)).catch(() => {});
@@ -82,7 +82,7 @@ export default function Production() {
 
   useEffect(() => {
     fetchOrders();
-  }, [page, pageSize, searchTerm, dateFrom, dateTo]);
+  }, [fetchOrders]);
 
   const statsProduced = orders.reduce((sum, o) => sum + Number(o.qty_produced || 0), 0);
   const statsRejected = orders.reduce((sum, o) => sum + Number(o.qty_rejected || 0), 0);
