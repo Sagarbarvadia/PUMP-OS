@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { dashboardAPI } from '@/services/api';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -29,12 +30,15 @@ function KpiCard({ label, value, sub, icon: Icon, color = 'orange', testid }) {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     dashboardAPI.get().then(r => { setData(r.data); setLoading(false); }).catch(() => setLoading(false));
   }, []);
+
+  const goToReorderReport = () => navigate('/reports?tab=7');
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
@@ -102,7 +106,13 @@ export default function Dashboard() {
         </div>
 
         {/* Reorder Alerts */}
-        <div className="bg-white border border-slate-200 rounded-md shadow-sm p-5">
+        <div
+          className="bg-white border border-slate-200 rounded-md shadow-sm p-5 hover:bg-slate-50 transition cursor-pointer"
+          onClick={goToReorderReport}
+          role="button"
+          tabIndex={0}
+          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') goToReorderReport(); }}
+        >
           <div className="flex items-center gap-2 mb-4">
             <AlertTriangle size={16} className="text-amber-500" />
             <p className="font-heading font-bold text-slate-900">Reorder Alerts</p>

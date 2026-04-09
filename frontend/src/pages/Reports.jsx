@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { masterAPI, reportsAPI } from '@/services/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Download } from 'lucide-react';
@@ -19,7 +20,9 @@ const getTotals = rows => rows.reduce((acc, row) => {
 }, {});
 
 export default function Reports() {
-  const [tab, setTab] = useState(0);
+  const [searchParams] = useSearchParams();
+  const initialTab = Number(searchParams.get('tab'));
+  const [tab, setTab] = useState(!Number.isNaN(initialTab) && initialTab >= 0 && initialTab < TABS.length ? initialTab : 0);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
   const [products, setProducts] = useState([]);
