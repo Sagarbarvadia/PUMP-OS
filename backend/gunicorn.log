@@ -1,0 +1,18 @@
+nohup: ignoring input
+[2026-04-09 08:55:42 +0200] [3125] [INFO] Starting gunicorn 25.1.0
+[2026-04-09 08:55:42 +0200] [3125] [INFO] Listening at: http://127.0.0.1:8000 (3125)
+[2026-04-09 08:55:42 +0200] [3125] [INFO] Using worker: sync
+[2026-04-09 08:55:42 +0200] [3127] [INFO] Booting worker with pid: 3127
+[2026-04-09 08:55:42 +0200] [3125] [INFO] Control socket listening at /root/PUMP-OS/backend/gunicorn.ctl
+[2026-04-09 08:55:42 +0200] [3128] [INFO] Booting worker with pid: 3128
+[2026-04-09 08:55:42 +0200] [3129] [INFO] Booting worker with pid: 3129
+Not Found: /
+Session data corrupted
+Session data corrupted
+Session data corrupted
+Not Found: /api/auth/
+[2026-04-09 09:37:04 +0200] [3125] [INFO] Handling signal: term
+[2026-04-09 09:37:04 +0200] [3125] [WARNING] Worker (pid:3127) was sent SIGHUP!
+[2026-04-09 09:37:04 +0200] [3125] [WARNING] Worker (pid:3128) was sent SIGHUP!
+[2026-04-09 09:37:04 +0200] [3125] [WARNING] Worker (pid:3129) was sent SIGHUP!
+[2026-04-09 09:37:04 +0200] [3125] [INFO] Shutting down: Master

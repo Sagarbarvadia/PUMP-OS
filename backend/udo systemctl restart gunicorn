@@ -1,0 +1,5 @@
+ id |                                         password                                         |          last_login           | is_superuser | username | first_name | last_name | is_staff | is_active |          date_joined          |     email      |     role      
+----+------------------------------------------------------------------------------------------+-------------------------------+--------------+----------+------------+-----------+----------+-----------+-------------------------------+----------------+---------------
+  1 | pbkdf2_sha256$600000$PABfANaj8dx7vUFqL0JkJ6$U8NMkTgmRf17kVaeehymfeEsJkwrNvWdxCWN4VSk/ek= | 2026-03-08 08:26:05.764546+00 | t            | admin    |            |           | t        | t         | 2026-03-08 07:33:23.101798+00 | admin@test.com | STORE_MANAGER
+(1 row)
+

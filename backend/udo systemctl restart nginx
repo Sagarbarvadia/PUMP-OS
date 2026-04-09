@@ -1,0 +1,14 @@
+[0;1;32m●[0m gunicorn.service - Gunicorn daemon for Django project
+     Loaded: loaded (]8;;file://vmi3216479/etc/systemd/system/gunicorn.service/etc/systemd/system/gunicorn.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (running)[0m since Thu 2026-04-09 06:10:19 CEST; 194ms ago
+   Main PID: 39568 (gunicorn)
+      Tasks: 1 (limit: 9483)
+     Memory: 10.0M (peak: 10.0M)
+        CPU: 146ms
+     CGroup: /system.slice/gunicorn.service
+             └─[0;38;5;245m39568 /root/PUMP-OS/venv/bin/python3 /root/PUMP-OS/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:8000 erp_config.wsgi:application[0m
+
+Apr 09 06:10:19 vmi3216479 systemd[1]: Started gunicorn.service - Gunicorn daemon for Django project.
+Apr 09 06:10:19 vmi3216479 gunicorn[39568]: [2026-04-09 06:10:19 +0200] [39568] [INFO] Starting gunicorn 25.1.0
+Apr 09 06:10:19 vmi3216479 gunicorn[39568]: [2026-04-09 06:10:19 +0200] [39568] [INFO] Listening at: http://0.0.0.0:8000 (39568)
+Apr 09 06:10:19 vmi3216479 gunicorn[39568]: [2026-04-09 06:10:19 +0200] [39568] [INFO] Using worker: sync

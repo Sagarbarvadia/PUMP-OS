@@ -1,0 +1,33 @@
+[2026-04-09 08:49:46 +0200] [3027] [INFO] Starting gunicorn 25.1.0
+[2026-04-09 08:49:46 +0200] [3027] [INFO] Listening at: http://127.0.0.1:8000 (3027)
+[2026-04-09 08:49:46 +0200] [3027] [INFO] Using worker: sync
+[2026-04-09 08:49:46 +0200] [3027] [INFO] Control socket listening at /root/PUMP-OS/backend/gunicorn.ctl
+[2026-04-09 08:49:46 +0200] [3029] [INFO] Booting worker with pid: 3029
+[2026-04-09 08:51:10 +0200] [3056] [INFO] Starting gunicorn 25.1.0
+[2026-04-09 08:51:10 +0200] [3056] [ERROR] Connection in use: ('127.0.0.1', 8000)
+[2026-04-09 08:51:10 +0200] [3056] [ERROR] connection to ('127.0.0.1', 8000) failed: [Errno 98] Address already in use
+[2026-04-09 08:51:11 +0200] [3056] [ERROR] Connection in use: ('127.0.0.1', 8000)
+[2026-04-09 08:51:11 +0200] [3056] [ERROR] connection to ('127.0.0.1', 8000) failed: [Errno 98] Address already in use
+[2026-04-09 08:51:12 +0200] [3056] [ERROR] Connection in use: ('127.0.0.1', 8000)
+[2026-04-09 08:51:12 +0200] [3056] [ERROR] connection to ('127.0.0.1', 8000) failed: [Errno 98] Address already in use
+[2026-04-09 08:51:13 +0200] [3056] [ERROR] Connection in use: ('127.0.0.1', 8000)
+[2026-04-09 08:51:13 +0200] [3056] [ERROR] connection to ('127.0.0.1', 8000) failed: [Errno 98] Address already in use
+[2026-04-09 08:51:14 +0200] [3056] [ERROR] Connection in use: ('127.0.0.1', 8000)
+[2026-04-09 08:51:14 +0200] [3056] [ERROR] connection to ('127.0.0.1', 8000) failed: [Errno 98] Address already in use
+[2026-04-09 08:51:15 +0200] [3056] [ERROR] Can't connect to ('127.0.0.1', 8000)
+[2026-04-09 08:51:28 +0200] [3078] [INFO] Starting gunicorn 25.1.0
+[2026-04-09 08:51:28 +0200] [3078] [ERROR] Connection in use: ('127.0.0.1', 8000)
+[2026-04-09 08:51:28 +0200] [3078] [ERROR] connection to ('127.0.0.1', 8000) failed: [Errno 98] Address already in use
+[2026-04-09 08:51:29 +0200] [3078] [ERROR] Connection in use: ('127.0.0.1', 8000)
+[2026-04-09 08:51:29 +0200] [3078] [ERROR] connection to ('127.0.0.1', 8000) failed: [Errno 98] Address already in use
+[2026-04-09 08:51:30 +0200] [3078] [ERROR] Connection in use: ('127.0.0.1', 8000)
+[2026-04-09 08:51:30 +0200] [3078] [ERROR] connection to ('127.0.0.1', 8000) failed: [Errno 98] Address already in use
+[2026-04-09 08:51:31 +0200] [3078] [ERROR] Connection in use: ('127.0.0.1', 8000)
+[2026-04-09 08:51:31 +0200] [3078] [ERROR] connection to ('127.0.0.1', 8000) failed: [Errno 98] Address already in use
+[2026-04-09 08:51:32 +0200] [3078] [ERROR] Connection in use: ('127.0.0.1', 8000)
+[2026-04-09 08:51:32 +0200] [3078] [ERROR] connection to ('127.0.0.1', 8000) failed: [Errno 98] Address already in use
+[2026-04-09 08:51:33 +0200] [3078] [ERROR] Can't connect to ('127.0.0.1', 8000)
+[2026-04-09 08:55:35 +0200] [3027] [INFO] Handling signal: term
+[2026-04-09 12:25:35 +0530] [3029] [INFO] Worker exiting (pid: 3029)
+[2026-04-09 08:55:35 +0200] [3027] [INFO] Worker (pid:3029) was sent SIGTERM!
+[2026-04-09 08:55:36 +0200] [3027] [INFO] Shutting down: Master

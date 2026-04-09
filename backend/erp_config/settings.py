@@ -11,10 +11,7 @@ STATICFILES_DIRS = [BASE_DIR / 'frontend' / 'build' / 'static']
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-erp-manufacturing-key-change-in-production-2024')
 DEBUG = True
-ALLOWED_HOSTS = [
-    "pump-os-backend.onrender.com",
-    "173.212.235.215"
-]
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -66,9 +63,9 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('PG_DB', 'erp_db'),
-        'USER': os.environ.get('PG_USER', 'erp_user'),
-        'PASSWORD': os.environ.get('PG_PASSWORD', '123456'),
+        'NAME': os.environ.get('PG_DB', 'pump_os'),
+        'USER': os.environ.get('PG_USER', 'pumposuser'),
+        'PASSWORD': os.environ.get('PG_PASSWORD', 'user123'),
         'HOST': os.environ.get('PG_HOST', 'localhost'),
         'PORT': os.environ.get('PG_PORT', '5432'),
         'CONN_MAX_AGE': 60,
