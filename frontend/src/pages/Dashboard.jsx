@@ -38,7 +38,7 @@ export default function Dashboard() {
     dashboardAPI.get().then(r => { setData(r.data); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
-  const goToReorderReport = () => navigate('/reports?tab=7');
+  const goToReorderReport = () => navigate('/inventory?tab=4');
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
