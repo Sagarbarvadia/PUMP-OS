@@ -99,6 +99,11 @@ export default function Inventory() {
       valB = Number(b.current_stock) * Number(b.moving_avg_cost);
     }
 
+    if (sortKey === "status") {
+      valA = a.is_below_reorder ? 1 : 0;
+      valB = b.is_below_reorder ? 1 : 0;
+    }
+
     if (typeof valA === "string") {
       return sortDir === "asc"
         ? valA.localeCompare(valB)

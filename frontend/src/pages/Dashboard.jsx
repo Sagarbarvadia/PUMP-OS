@@ -121,7 +121,7 @@ export default function Dashboard() {
             <p className="text-sm text-slate-400 text-center py-6">All stock levels are adequate</p>
           ) : (
             <div className="space-y-2" data-testid="reorder-list">
-              {reorder_items.map(item => (
+              {[...reorder_items].sort((a, b) => Number(a.current_stock) - Number(b.current_stock)).map(item => (
                 <div key={item.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
                   <div>
                     <p className="text-xs font-medium text-slate-800">{item.item_name}</p>
