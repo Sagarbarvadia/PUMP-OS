@@ -133,6 +133,14 @@ export default function Dashboard() {
                   </div>
                 </div>
               ))}
+              <div className="pt-2 border-t border-slate-100">
+                <button 
+                  onClick={goToReorderReport}
+                  className="text-xs text-orange-600 hover:text-orange-700 font-medium hover:underline"
+                >
+                  View all reorder alerts →
+                </button>
+              </div>
             </div>
           )}
         </div>
