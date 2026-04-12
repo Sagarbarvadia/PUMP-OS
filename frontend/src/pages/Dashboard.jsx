@@ -6,7 +6,7 @@ import {
 } from 'recharts';
 import { Package, Factory, AlertTriangle, TrendingUp, Layers, Wrench } from 'lucide-react';
 
-function KpiCard({ label, value, sub, icon: Icon, color = 'orange', testid }) {
+function KpiCard({ label, value, sub, icon: Icon, color = 'orange', testid, onClick }) {
   const colors = {
     orange: 'bg-orange-50 text-orange-600',
     blue: 'bg-blue-50 text-blue-600',
@@ -14,7 +14,14 @@ function KpiCard({ label, value, sub, icon: Icon, color = 'orange', testid }) {
     red: 'bg-red-50 text-red-600',
   };
   return (
-    <div className="stat-card animate-fade-in" data-testid={testid}>
+    <div 
+      className={`stat-card animate-fade-in ${onClick ? 'hover:bg-slate-50 cursor-pointer transition' : ''}`} 
+      data-testid={testid}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
+    >
       <div className="flex items-start justify-between">
         <div>
           <p className="label-overline mb-2">{label}</p>
@@ -85,6 +92,7 @@ export default function Dashboard() {
           icon={AlertTriangle}
           color={kpis.reorder_alerts > 0 ? 'red' : 'green'}
           testid="kpi-reorder-alerts"
+          onClick={goToReorderReport}
         />
       </div>
 
