@@ -311,7 +311,44 @@ export default function Inventory() {
               )}
             </div>
           )}
-        </>
+          {tab === 4 && (
+            <div className="space-y-3">
+              <div className="bg-white border border-slate-200 rounded-md shadow-sm">
+                <div className="table-scroll">
+                  <table className="data-table w-full" data-testid="reorder-alerts-table">
+                    <thead>
+                      <tr>
+                        <th className="text-center">Item ID</th>
+                        <th className="text-center">Item Name</th>
+                        <th className="text-center">Category</th>
+                        <th className="text-center">Unit</th>
+                        <th className="text-center">Stock</th>
+                        <th className="text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredStock.filter(i => i.is_below_reorder).length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="text-center py-8 text-slate-400">No items below reorder level</td>
+                        </tr>
+                      ) : (
+                        filteredStock.filter(i => i.is_below_reorder).map(i => (
+                          <tr key={i.id}>
+                            <td className="font-mono text-xs text-slate-500">{i.item_id}</td>
+                            <td className="font-medium">{i.item_name}</td>
+                            <td className="text-xs">{i.category}</td>
+                            <td className="font-mono text-xs">{i.unit}</td>
+                            <td className="text-left font-mono font-semibold text-red-600">{Number(i.current_stock).toFixed(4)}</td>
+                            <td><span className="badge-error">Low</span></td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}        </>
       )}
 
       {adjModal && (
