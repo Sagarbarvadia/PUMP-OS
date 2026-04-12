@@ -198,8 +198,6 @@ export default function Inventory() {
                           Status <ArrowUpDown size={14} />
                         </div>
                       </th>
-
-                      <th></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -213,11 +211,6 @@ export default function Inventory() {
                           <td className="text-left font-mono text-xs">₹{Number(i.moving_avg_cost).toFixed(4)}</td>
                           <td className="text-left font-mono text-xs">₹{(Number(i.current_stock) * Number(i.moving_avg_cost)).toFixed(2)}</td>
                           <td><span className={i.is_below_reorder ? 'badge-error' : 'badge-success'}>{i.is_below_reorder ? 'Low' : 'OK'}</span></td>
-                          <td>
-                            <button onClick={() => openLedger(i)} className="text-slate-400 hover:text-blue-600" title="View Ledger">
-                              <BookOpen size={13} />
-                            </button>
-                          </td>
                         </tr>
                       ))}
                     </tbody>
