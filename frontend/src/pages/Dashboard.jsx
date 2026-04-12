@@ -91,7 +91,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Monthly Trend Chart */}
         <div className="lg:col-span-2 bg-white border border-slate-200 rounded-md shadow-sm p-5">
-          <p className="font-heading font-bold text-slate-900 mb-4">Production Trendsssscccccsss — Last 6 Months</p>
+          <p className="font-heading font-bold text-slate-900 mb-4">Production Trends — Last 6 Months</p>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={monthly_production_trend} margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
